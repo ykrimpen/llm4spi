@@ -24,7 +24,7 @@ model = GPT4All("orca-mini-3b-gguf2-q4_0.gguf", model_path="/root/models")
 problems = read_problems(ZEROSHOT_DATA)
 
 with model.chat_session():
-    results = [generate_task_result(model, problem) for problem in problems]
+    results = [generate_task_result(model, problems[problem]) for problem in problems]
 
 write_jsonl("samples.jsonl", results)
 
