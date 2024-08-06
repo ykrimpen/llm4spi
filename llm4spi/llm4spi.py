@@ -31,5 +31,5 @@ def generate_results(model: GPT4All) -> None:
     return
 
 if __name__ == '__main__':
-    model = GPT4All("orca-mini-3b-gguf2-q4_0.gguf", model_path="/root/models", device="GPU 1")
+    model = GPT4All("orca-mini-3b-gguf2-q4_0.gguf", model_path="/root/models", device="cuda:NVIDIA A16")
     generate_results(model)
