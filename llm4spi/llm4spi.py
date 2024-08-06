@@ -32,7 +32,7 @@ def generate_results(model: GPT4All) -> None:
     return
 
 if __name__ == '__main__':
-    model = GPT4All("orca-mini-3b-gguf2-q4_0.gguf", model_path="/root/models", device="cuda:NVIDIA A16")
+    model = GPT4All("orca-mini-3b-gguf2-q4_0.gguf", model_path="/root/models", device="cpu")
 
     start = time.time()
     generate_results(model)
