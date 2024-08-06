@@ -1,5 +1,6 @@
 from gpt4all import GPT4All
 from typing import Dict
+import time
 
 from data import ZEROSHOT_DATA, read_problems, stream_jsonl, write_jsonl
 
@@ -32,4 +33,9 @@ def generate_results(model: GPT4All) -> None:
 
 if __name__ == '__main__':
     model = GPT4All("orca-mini-3b-gguf2-q4_0.gguf", model_path="/root/models", device="cuda:NVIDIA A16")
+
+    start = time.time()
     generate_results(model)
+    end = time.time()
+
+    print("Processing time: " + str(end - start))
