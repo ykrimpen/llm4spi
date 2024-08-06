@@ -1,7 +1,7 @@
 from gpt4all import GPT4All
 from typing import Dict
 
-from llm4spi.data import ZEROSHOT_DATA, read_problems, stream_jsonl, write_jsonl
+from data import ZEROSHOT_DATA, read_problems, stream_jsonl, write_jsonl
 
 
 def generate_task_result(
