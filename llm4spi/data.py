@@ -5,9 +5,12 @@ import os
 
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
-ZEROSHOT_DATA = os.path.join(ROOT, "..", "data", "specification_zeroshot_inputs.jsonl")
+ZEROSHOT_DATA = os.path.join(ROOT, "..", "data", "specification_zeroshot_inputs.json")
 
 def read_problems(data_file: str) -> Dict[str, Dict]:
+    """
+    Parses data file content to task dictionary
+    """
     return {task["task_id"]: task for task in stream_jsonl(data_file)}
 
 
@@ -16,9 +19,7 @@ def stream_jsonl(filename: str) -> Iterable[Dict]:
     Parses each jsonl line and yields it as a dictionary
     """
     with open(filename, "r") as fp:
-        for line in fp:
-            if any(not x.isspace() for x in line):
-                yield json.loads(line)
+        return json.load(fp)
 
 
 def write_jsonl(filename: str, data: Iterable[Dict], append: bool = False):
