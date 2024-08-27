@@ -64,7 +64,10 @@ def evaluate_task_result(task: Dict, condition: str):
     else:
         solution_results = [checkPost(*test_case) for test_case in test_cases]
 
-    
+    print(f"task: {task}, condition: {condition}")
+    print(complete_solution_function)
+    print(solution_results)
+
     indented_function_body = textwrap.indent(task[f"{condition}_condition_completion"],'    ')
     complete_function = task[f"{condition}_condition_incomplete"] + "\n" + indented_function_body
     
@@ -77,6 +80,9 @@ def evaluate_task_result(task: Dict, condition: str):
         completion_results = [try_check_pre(test_case) for test_case in test_cases]
     else:
         completion_results = [try_check_post(test_case) for test_case in test_cases]
+
+    print(complete_function)
+    print(completion_results)
 
     task[f"{condition}_condition_evaluation"] = compare_results(solution_results, completion_results)
 

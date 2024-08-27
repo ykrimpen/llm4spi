@@ -66,4 +66,4 @@ if __name__ == '__main__':
     #end = time.time()
     #print("Processing time: " + str(end - start))
 
-    generate_results(model, prompt_type="cot")
+    #generate_results(model, prompt_type="cot")
