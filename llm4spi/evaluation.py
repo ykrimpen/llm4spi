@@ -30,17 +30,17 @@ def compare_results(expected: list, predicted: list) -> str:
     return "failed"
     
 
-def try_check_pre(test_case):
+def try_check_pre(test_case, task_id):
     try:
-        result = checkPre(*test_case)
+        result = eval(f"check_pre_completion_{task_id}(*test_case)")
     except:
         return "failed"
     return result
 
 
-def try_check_post(test_case):
+def try_check_post(test_case, task_id):
     try:
-        result = checkPost(*test_case)
+        result = eval(f"check_post_completion_{task_id}(*test_case)")
     except:
         return "failed"
     return result
@@ -53,19 +53,19 @@ def evaluate_task_result(task: Dict, condition: str):
     evaluates the predicted function's performance,
     and alters the evaluation item of the task dictionary.
     """
-    indented_solution_function_body = textwrap.indent(task[f"{condition}_condition_solution"],'    ')
-    complete_solution_function = task[f"{condition}_condition_incomplete"] + "\n" + indented_solution_function_body
-    exec(complete_solution_function,globals())
+    solution_function = task[f"{condition}_condition_solution"]
+    #complete_solution_function = task[f"{condition}_condition_incomplete"] + "\n" + indented_solution_function_body
+    exec(solution_function,globals())
 
     test_cases = task[f"{condition}_condition_tests"]
 
     if (condition == "pre"):
-        solution_results = [checkPre(*test_case) for test_case in test_cases]
+        solution_results = [eval(f"check_pre_solution_{task["task_id"]}(*test_case)") for test_case in test_cases]
     else:
-        solution_results = [checkPost(*test_case) for test_case in test_cases]
+        solution_results = [eval(f"check_post_solution_{task["task_id"]}(*test_case)") for test_case in test_cases]
 
-    print(f"task: {task}, condition: {condition}")
-    print(complete_solution_function)
+    print(f"task: {task["task_id"]}, condition: {condition}")
+    print(solution_function)
     print(solution_results)
 
     indented_function_body = textwrap.indent(task[f"{condition}_condition_completion"],'    ')
@@ -77,9 +77,9 @@ def evaluate_task_result(task: Dict, condition: str):
         task[f"{condition}_condition_evaluation"] = "failed"
     
     if (condition == "pre"):
-        completion_results = [try_check_pre(test_case) for test_case in test_cases]
+        completion_results = [try_check_pre(test_case, task["task_id"]) for test_case in test_cases]
     else:
-        completion_results = [try_check_post(test_case) for test_case in test_cases]
+        completion_results = [try_check_post(test_case, task["task_id"]) for test_case in test_cases]
 
     print(complete_function)
     print(completion_results)
