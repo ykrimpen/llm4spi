@@ -100,7 +100,7 @@ if __name__ == '__main__':
     #ROOT = os.path.dirname(os.path.abspath(__file__))
     #dataset = os.path.join(ROOT, "..", "data", "coba_specs.json")
     generate_results(client, dataset, 
-                     specificProblem = "3",
+                     specificProblem = None,
                      experimentName = "gpt3.5",     
                      enableEvaluation=True, 
                      prompt_type="zshot")

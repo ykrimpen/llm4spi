@@ -33,7 +33,7 @@ def compare_results(expected: list, predicted: list) -> str:
 
 def try_check_pre(test_case, task_id):
     try:
-        result = eval(f"check_pre_completion_{task_id}(*test_case)")
+        result = eval(f"check_pre_{task_id}(*test_case)")
     except:
         return "failed"
     return result
@@ -41,7 +41,7 @@ def try_check_pre(test_case, task_id):
 
 def try_check_post(test_case, task_id):
     try:
-        result = eval(f"check_post_completion_{task_id}(*test_case)")
+        result = eval(f"check_post_{task_id}(*test_case)")
     except:
         return "failed"
     return result
