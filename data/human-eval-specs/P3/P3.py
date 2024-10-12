@@ -35,7 +35,7 @@ def program_P3(s):
 
 
 """@ pre_condition:
-it checks that s is a non-empty string.
+It checks that s is a non-empty string.
 """
 #< pre_condition_solution:
 def check_pre_solution_P3(s: str) -> bool:
@@ -43,7 +43,7 @@ def check_pre_solution_P3(s: str) -> bool:
 #>
 
 """@ post_condition: 
-it checks that retval is the reverse of s, if s contains no letters. 
+It checks that retval is the reverse of s, if s contains no letters. 
 Else, it checks that retval is as s, but for each s[i] which 
 is a lower case letter, retval[i] is the upper case, vice versa, 
 and else retval[i] is as s[i].

@@ -1,0 +1,138 @@
+[
+   {
+      "task_id": "P0",
+      "program-desc": "The program takes x and y that are non-negative, and it returns the greatest of x and y. \n\nExamples:\n  maxp(0,0) = 0 \n  maxp(9,1) = 9 \n  maxp(9,10) = 10\n",
+      "program": "def program_P0(x: float, y: float) -> float: \n  return max(x,y)",
+      "pre_condition": "It checks if x and y are non-negative.",
+      "pre_condition_incomplete": "def check_pre_P0(x: float, y: float) -> bool: ",
+      "pre_condition_solution": "def check_pre_solution_P0(x: float, y: float) -> bool: \n    return x>=0 and y>=0",
+      "pre_condition_tests": [
+         [
+            0,
+            0
+         ],
+         [
+            9,
+            1
+         ],
+         [
+            9,
+            10
+         ],
+         [
+            -1,
+            1
+         ],
+         [
+            5,
+            0
+         ],
+         [
+            1,
+            -1
+         ],
+         [
+            -9,
+            -9
+         ]
+      ],
+      "post_condition": "It checks if retval is the greatest of x and y.",
+      "post_condition_incomplete": "def check_post_P0(retval: float, x: float, y: float) -> bool:",
+      "post_condition_solution": "def check_post_solution_P0(retval: float, x: float, y: float) -> bool:\n    return (retval==x or retval==y) and retval >=x and retval >= y",
+      "post_condition_tests": [
+         [
+            0,
+            0,
+            0
+         ],
+         [
+            9,
+            9,
+            1
+         ],
+         [
+            10,
+            9,
+            10
+         ],
+         [
+            1,
+            1,
+            1
+         ],
+         [
+            0,
+            3,
+            1
+         ],
+         [
+            3,
+            5,
+            3
+         ],
+         [
+            0,
+            1,
+            1
+         ]
+      ]
+   },
+   {
+      "task_id": "P3",
+      "program-desc": "You are given a string s.\nIf s[i] is a letter, reverse its case from lower to upper or vice versa, \notherwise keep it as it is.\nIf the string contains no letters, reverse the string.\nThe function should return the resulted string.\n\nExamples:\n  solve(\"1234\") = \"4321\"\n  solve(\"ab\") = \"AB\"\n  solve(\"#a@C\") = \"#A@c\"\n",
+      "program": "def program_P3(s):\n    flg = 0\n    idx = 0\n    new_str = list(s)\n    for i in s:\n        if i.isalpha():\n            new_str[idx] = i.swapcase()\n            flg = 1\n        idx += 1\n    s = \"\"\n    for i in new_str:\n        s += i\n    if flg == 0:\n        return s[len(s)::-1]\n    return s",
+      "pre_condition": "It checks that s is a non-empty string.",
+      "pre_condition_incomplete": "def check_pre_P3(s: str) -> bool:",
+      "pre_condition_solution": "def check_pre_solution_P3(s: str) -> bool:\n    return len(s) > 0",
+      "pre_condition_tests": [
+         [
+            ""
+         ],
+         [
+            "t3st"
+         ],
+         [
+            "1234"
+         ],
+         [
+            "ab"
+         ],
+         [
+            "#a@c"
+         ]
+      ],
+      "post_condition": "It checks that retval is the reverse of s, if s contains no letters. \nElse, it checks that retval is as s, but for each s[i] which \nis a lower case letter, retval[i] is the upper case, vice versa, \nand else retval[i] is as s[i].\n\nExamples:\n  check_post_P3(\"4321\",\"1234\") = True\n  check_post_P3(\"AB\",\"ab\") = True\n  check_post_P3(\"#A@c\",\"#a@C\") = True\n",
+      "post_condition_incomplete": "def check_post_P3(retval: str, s: str) -> bool:",
+      "post_condition_solution": "def check_post_solution_P3(retval: str, s: str) -> bool:\n  if all([ not c.isalpha() for c in s]):\n      return retval == s[::-1]\n  if len(retval) != len(s):\n      return False\n  check =  [ (r == x.swapcase()) if x.isalpha() else (r==x) for (r,x) in zip(retval,s) ]\n  return all(check)",
+      "post_condition_tests": [
+         [
+            "T3ST",
+            "t3st"
+         ],
+         [
+            "1234",
+            "4321"
+         ],
+         [
+            "AB",
+            "ab"
+         ],
+         [
+            "#A@C",
+            "#a@c"
+         ],
+         [
+            "tesT",
+            "TESt"
+         ],
+         [
+            "TEStEST",
+            "tesTest"
+         ],
+         [
+            "test",
+            "test"
+         ]
+      ]
+   }
+]

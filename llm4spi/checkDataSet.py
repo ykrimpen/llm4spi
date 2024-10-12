@@ -2,6 +2,7 @@
 # For checking that given data-set is structurally correct
 #
 import data
+import os
 
 def printPrograms_InDataSet(data_file: str, whichProblem:str) -> None :
    """
@@ -66,5 +67,8 @@ def checkPrePostSolutions_InDataSet(data_file: str) -> None :
    print("** All seem to be good.")
 
 if __name__ == '__main__':
-   checkPrePostSolutions_InDataSet(data.ZEROSHOT_DATA)
-   #printPrograms_InDataSet(data.ZEROSHOT_DATA, whichProblem="3")
+   dataset = data.ZEROSHOT_DATA
+   ROOT = os.path.dirname(os.path.abspath(__file__))
+   dataset = os.path.join(ROOT, "..", "data", "x.json")
+   checkPrePostSolutions_InDataSet(dataset)
+   #printPrograms_InDataSet(dataset, whichProblem="P0")

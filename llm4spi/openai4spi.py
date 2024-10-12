@@ -15,6 +15,9 @@ def create_completion(
     """
     Creates a chat completion using a given OpenAI client and prompt and returns the response 
     """
+    #print("<<< PROMPT:")
+    #print(prompt)
+    #print(">>>")
     completion = client.chat.completions.create(
         model="gpt-3.5-turbo",
         #model="gpt-4-turbo",
@@ -97,8 +100,8 @@ if __name__ == '__main__':
     openai_api_key = os.environ.get('OPENAI_API_KEY') 
     client = OpenAI(api_key=openai_api_key)
     dataset = ZEROSHOT_DATA
-    #ROOT = os.path.dirname(os.path.abspath(__file__))
-    #dataset = os.path.join(ROOT, "..", "data", "coba_specs.json")
+    ROOT = os.path.dirname(os.path.abspath(__file__))
+    dataset = os.path.join(ROOT, "..", "data", "x.json")
     generate_results(client, dataset, 
                      specificProblem = None,
                      experimentName = "gpt3.5",     
