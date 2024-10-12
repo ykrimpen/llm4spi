@@ -1,7 +1,4 @@
-# Project: using LLM to get SPi
-
-* Contains a dataset, currently still preliminary.
-* Contains an evaluation script.
+# My LLM Project
 
 #### Using GPT4All.
 

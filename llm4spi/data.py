@@ -34,3 +34,7 @@ def write_jsonl(filename: str, data: Iterable[Dict], append: bool = False):
     with open(filename, mode) as fp:
         for x in data:
             fp.write((json.dumps(x) + "\n").encode('utf-8'))
+
+def prepTestCase(vs):
+   return [ None if x=='xxNonexx' else x for x in vs ]
+   

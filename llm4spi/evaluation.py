@@ -1,5 +1,6 @@
 from typing import Dict
 import textwrap
+import data
 from collections import Counter
 
 
@@ -17,8 +18,8 @@ def compare_results(expected: list, predicted: list) -> str:
     any_false_positive = False
 
     for (expectation,prediction) in zip(expected,predicted):
-        any_false_negative = expectation & (not prediction)
-        any_false_positive = (not expectation) & prediction
+        any_false_negative = any_false_negative or (expectation and (not prediction))
+        any_false_positive = any_false_positive or ((not expectation) and prediction)
     
     if any_false_negative & any_false_positive:
         return "rejected"
@@ -54,11 +55,20 @@ def evaluate_task_result(task: Dict, condition: str):
     and alters the evaluation item of the task dictionary.
     """
     solution_function = task[f"{condition}_condition_solution"]
+
+    # executing the solution-function def; not expecting it to fail
     #complete_solution_function = task[f"{condition}_condition_incomplete"] + "\n" + indented_solution_function_body
-    exec(solution_function,globals())
+    try:
+        exec(solution_function,globals())
+    except:
+        print(">>>>>>")
+        print(solution_function)
 
     test_cases = task[f"{condition}_condition_tests"]
+    test_cases = [ data.prepTestCase(tc) for tc in test_cases ]
 
+    # executing the test-cases on the solution-function, also not expecting these
+    # to fail:
     if (condition == "pre"):
         solution_results = [eval(f"check_pre_solution_{task["task_id"]}(*test_case)") for test_case in test_cases]
     else:
@@ -71,11 +81,13 @@ def evaluate_task_result(task: Dict, condition: str):
     indented_function_body = textwrap.indent(task[f"{condition}_condition_completion"],'    ')
     complete_function = task[f"{condition}_condition_incomplete"] + "\n" + indented_function_body
     
+    # executing the def. of the AI's function; it may fail (e.g. if AI's code is not even syntax correct)
     try:
         exec(complete_function,globals())
     except:
         task[f"{condition}_condition_evaluation"] = "failed"
     
+    # running the test-cases on the AI's function; this may fail too:
     if (condition == "pre"):
         completion_results = [try_check_pre(test_case, task["task_id"]) for test_case in test_cases]
     else:
@@ -97,8 +109,10 @@ def print_acceptance_rate(tasks: Dict[str,Dict]):
     counter = Counter(all_evaluations)
     total = counter.total()
 
+    print("** Evaluation result:")
+    print(f"   N = {total}")
     for (state, count) in counter.items():
-        print(f"{state}: {count/total*100}%")
+        print(f"   {state}: {count} ({count/total*100}%)")
 
 
 def evaluate_task_results(tasks: Dict[str,Dict]) -> None:
