@@ -30,45 +30,53 @@ def checkPrePostSolutions_InDataSet(data_file: str) -> None :
    print(f"** Checking {len(problems)} problems...")
    for p in problems:
       P = problems[p]
-      preSolution = P["pre_condition_solution"]
-      postSolution = P["post_condition_solution"]
       problemId = p
       print(f"** Problem {problemId}:")
-      try:
-         exec(preSolution,globals())
-      except:
-         print(f">>> OUCH pre-cond problem {p} has a problem.")
-         print(preSolution)
-      try:
-         test_cases = [ data.prepTestCase(tc) for tc in P["pre_condition_tests"]]
-         #print(test_cases)
-         solution_results = [eval(f"check_pre_solution_{problemId}(*test_case)") for test_case in test_cases]
-         print(f"   precond test results:{solution_results}")
-      except:
-         print(f">>> OUCH pre-cond problem {p} has a crashing test")
-         raise Exception("OUCH")
+      
+      if not ("pre_condition_solution" in P) :
+         print(f"  pre-cond: none given.")
 
-         
-      try:
-         exec(postSolution,globals())
-      except:
-         print(f">>> OUCH post-cond problem {p} has a problem.")
-         print(postSolution)
-         raise Exception("OUCH")
-      try:
-         test_cases = [ data.prepTestCase(tc) for tc in P["post_condition_tests"] ]
-         solution_results = [eval(f"check_post_solution_{problemId}(*test_case)") for test_case in test_cases]
-         print(f"   postcond test results:{solution_results}")
-      except:
-         print(f">>> OUCH post-cond problem {p} has a crashing test")
-         raise Exception("OUCH")
+      else:
+         preSolution = P["pre_condition_solution"]
+         try:
+            exec(preSolution,globals())
+         except:
+            print(f">>> OUCH pre-cond problem {p} has a problem.")
+            print(preSolution)
+         try:
+            test_cases = [ data.prepTestCase(tc) for tc in P["pre_condition_tests"]]
+            #print(test_cases)
+            solution_results = [eval(f"check_pre_solution_{problemId}(*test_case)") for test_case in test_cases]
+            print(f"   precond test results:{solution_results}")
+         except:
+            print(f">>> OUCH pre-cond problem {p} has a crashing test")
+            raise Exception("OUCH")
 
+      if not ("post_condition_solution" in P):
+         print(f"   post-cond: none given.")
+      
+      else:
+         postSolution = P["post_condition_solution"]
+         try:
+            exec(postSolution,globals())
+         except:
+            print(f">>> OUCH post-cond problem {p} has a problem.")
+            print(postSolution)
+            raise Exception("OUCH")
+         try:
+            test_cases = [ data.prepTestCase(tc) for tc in P["post_condition_tests"] ]
+            solution_results = [eval(f"check_post_solution_{problemId}(*test_case)") for test_case in test_cases]
+            print(f"   postcond test results:{solution_results}")
+         except:
+            print(f">>> OUCH post-cond problem {p} has a crashing test")
+            raise Exception("OUCH")
 
    print("** All seem to be good.")
 
 if __name__ == '__main__':
    dataset = data.ZEROSHOT_DATA
    ROOT = os.path.dirname(os.path.abspath(__file__))
-   dataset = os.path.join(ROOT, "..", "data", "x.json")
+   #dataset = os.path.join(ROOT, "..", "data", "x.json")
+   dataset = os.path.join(ROOT, "..", "data", "simple-specs.json")
    checkPrePostSolutions_InDataSet(dataset)
    #printPrograms_InDataSet(dataset, whichProblem="P0")

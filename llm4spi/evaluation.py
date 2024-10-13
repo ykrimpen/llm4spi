@@ -57,7 +57,9 @@ def evaluate_task_result(task: Dict, condition: str):
 
     # we first handle the case when the task pre- or post-condition
     # does not exists:
-
+    if not (f"{condition}_condition" in task) : 
+        task[f"{condition}_condition_evaluation"] = None
+        return
     conditionDesc = task[f"{condition}_condition"]
     if conditionDesc==None or conditionDesc=="":
         task[f"{condition}_condition_evaluation"] = None

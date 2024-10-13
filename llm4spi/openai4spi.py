@@ -102,10 +102,11 @@ if __name__ == '__main__':
     openai_api_key = os.environ.get('OPENAI_API_KEY') 
     client = OpenAI(api_key=openai_api_key)
     dataset = ZEROSHOT_DATA
-    #ROOT = os.path.dirname(os.path.abspath(__file__))
+    ROOT = os.path.dirname(os.path.abspath(__file__))
     #dataset = os.path.join(ROOT, "..", "data", "x.json")
+    dataset = os.path.join(ROOT, "..", "data", "simple-specs.json")
     generate_results(client, dataset, 
-                     specificProblem = "1",
+                     specificProblem = "logic_1",
                      experimentName = "gpt3.5",     
                      enableEvaluation=True, 
                      prompt_type="zshot")
