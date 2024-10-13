@@ -54,8 +54,18 @@ def evaluate_task_result(task: Dict, condition: str):
     evaluates the predicted function's performance,
     and alters the evaluation item of the task dictionary.
     """
-    solution_function = task[f"{condition}_condition_solution"]
 
+    # we first handle the case when the task pre- or post-condition
+    # does not exists:
+
+    conditionDesc = task[f"{condition}_condition"]
+    if conditionDesc==None or conditionDesc=="":
+        task[f"{condition}_condition_evaluation"] = None
+        return
+
+    # The task pre-/post- exists, we proceed with its evaluation:
+
+    solution_function = task[f"{condition}_condition_solution"]
     # executing the solution-function def; not expecting it to fail
     #complete_solution_function = task[f"{condition}_condition_incomplete"] + "\n" + indented_solution_function_body
     try:
@@ -103,7 +113,9 @@ def print_acceptance_rate(tasks: Dict[str,Dict]):
     total = len(tasks)
 
     pre_condition_evaluations = [tasks[task]["pre_condition_evaluation"] for task in tasks]
+    pre_condition_evaluations = [ r for r in pre_condition_evaluations if r != None]
     post_condition_evaluations = [tasks[task]["post_condition_evaluation"] for task in tasks]
+    post_condition_evaluations = [ r for r in post_condition_evaluations if r != None]
     all_evaluations = pre_condition_evaluations + post_condition_evaluations
 
     counter = Counter(all_evaluations)

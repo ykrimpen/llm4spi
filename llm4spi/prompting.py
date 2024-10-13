@@ -3,6 +3,9 @@ from typing import Dict
 
 def create_prompt(task: Dict, condition_type: str, prompt_type: str) -> str:
     condition = task[condition_type + "_condition"]
+
+    if condition == None or condition == "": return None
+    
     condition_incomplete = task[condition_type + "_condition_incomplete"]
 
     if prompt_type == "zshot":

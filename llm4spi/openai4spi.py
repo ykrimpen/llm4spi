@@ -18,6 +18,8 @@ def create_completion(
     #print("<<< PROMPT:")
     #print(prompt)
     #print(">>>")
+    if prompt == None: return None
+
     completion = client.chat.completions.create(
         model="gpt-3.5-turbo",
         #model="gpt-4-turbo",
@@ -100,10 +102,10 @@ if __name__ == '__main__':
     openai_api_key = os.environ.get('OPENAI_API_KEY') 
     client = OpenAI(api_key=openai_api_key)
     dataset = ZEROSHOT_DATA
-    ROOT = os.path.dirname(os.path.abspath(__file__))
-    dataset = os.path.join(ROOT, "..", "data", "x.json")
+    #ROOT = os.path.dirname(os.path.abspath(__file__))
+    #dataset = os.path.join(ROOT, "..", "data", "x.json")
     generate_results(client, dataset, 
-                     specificProblem = None,
+                     specificProblem = "1",
                      experimentName = "gpt3.5",     
                      enableEvaluation=True, 
                      prompt_type="zshot")
