@@ -44,7 +44,7 @@ def checkPrePostSolutions_InDataSet(data_file: str) -> None :
             print(f">>> OUCH pre-cond problem {p} has a problem.")
             print(preSolution)
          try:
-            test_cases = [ data.prepTestCase(tc) for tc in P["pre_condition_tests"]]
+            test_cases = eval(P["pre_condition_tests"]) 
             #print(test_cases)
             solution_results = [eval(f"check_pre_solution_{problemId}(*test_case)") for test_case in test_cases]
             print(f"   precond test results:{solution_results}")
@@ -64,7 +64,7 @@ def checkPrePostSolutions_InDataSet(data_file: str) -> None :
             print(postSolution)
             raise Exception("OUCH")
          try:
-            test_cases = [ data.prepTestCase(tc) for tc in P["post_condition_tests"] ]
+            test_cases = eval(P["post_condition_tests"])
             solution_results = [eval(f"check_post_solution_{problemId}(*test_case)") for test_case in test_cases]
             print(f"   postcond test results:{solution_results}")
          except:
@@ -76,7 +76,7 @@ def checkPrePostSolutions_InDataSet(data_file: str) -> None :
 if __name__ == '__main__':
    dataset = data.ZEROSHOT_DATA
    ROOT = os.path.dirname(os.path.abspath(__file__))
-   #dataset = os.path.join(ROOT, "..", "data", "x.json")
-   dataset = os.path.join(ROOT, "..", "data", "simple-specs.json")
+   dataset = os.path.join(ROOT, "..", "data", "x.json")
+   #dataset = os.path.join(ROOT, "..", "data", "simple-specs.json")
    checkPrePostSolutions_InDataSet(dataset)
    #printPrograms_InDataSet(dataset, whichProblem="P0")

@@ -54,11 +54,11 @@ def parseProblem(problemSrcFile:str) -> Dict :
                "pre_condition" : precondDesc,
                "pre_condition_incomplete" : preCondHeader,
                "pre_condition_solution" : precond,
-               "pre_condition_tests" : eval(precondTestInputs),
+               "pre_condition_tests" : precondTestInputs,
                "post_condition" : postcondDesc,
                "post_condition_incomplete" : postCondHeader,
                "post_condition_solution" : postcond,
-               "post_condition_tests" : eval(postcondTestInputs)
+               "post_condition_tests" : postcondTestInputs
             }
 
     #print(result)

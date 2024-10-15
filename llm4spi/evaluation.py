@@ -76,8 +76,7 @@ def evaluate_task_result(task: Dict, condition: str):
         print(">>>>>>")
         print(solution_function)
 
-    test_cases = task[f"{condition}_condition_tests"]
-    test_cases = [ data.prepTestCase(tc) for tc in test_cases ]
+    test_cases = eval(task[f"{condition}_condition_tests"])
 
     # executing the test-cases on the solution-function, also not expecting these
     # to fail:

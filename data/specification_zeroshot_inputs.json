@@ -5,11 +5,11 @@
         "pre_condition": "x and y are non-negative.",
         "pre_condition_incomplete": "def check_pre_0(x: float, y: float) -> bool:\n    \"\"\"\n    Return true if x and y are non-negative.\n    \"\"\"",
         "pre_condition_solution": "def check_pre_solution_0(x: float, y: float) -> bool:\n    \"\"\"\n    Return true if x and y are non-negative.\n    \"\"\"\n    return x>=0 and y>=0",
-        "pre_condition_tests": [[0,0],[9,1],[9,10],[-1,1],[5,0],[1,-1],[-9,-9]], 
+        "pre_condition_tests": "[[0,0],[9,1],[9,10],[-1,1],[5,0],[1,-1],[-9,-9]]", 
         "post_condition": "retval is the greatest of x and y.",
         "post_condition_incomplete": "def check_post_0(retval: float, x: float, y: float) -> bool:\n    \"\"\"\n    Return true if retval is the greatest of x and y.\n    \"\"\"\n",
         "post_condition_solution": "def check_post_solution_0(retval: float, x: float, y: float) -> bool:\n    \"\"\"\n    Return true if retval is the greatest of x and y.\n    \"\"\"\n\n    return (retval==x or retval==y) and retval >=x and retval >= y",
-        "post_condition_tests": [[0,0,0],[9,9,1],[10,9,10],[1,1,1],[0,3,1],[3,5,3],[0,1,1]] 
+        "post_condition_tests": "[[0,0,0],[9,9,1],[10,9,10],[1,1,1],[0,3,1],[3,5,3],[0,1,1]]" 
     },
     {
         "task_id": "1",
@@ -17,11 +17,11 @@
         "pre_condition": "",
         "pre_condition_incomplete": "def check_pre_1(x: int, y: int) -> bool:\n    \"\"\"\n    Return true.\n    \"\"\"",
         "pre_condition_solution": "def check_pre_solution_1(x: int, y: int) -> bool:\n    \"\"\"\n    Return true.\n    \"\"\"\n    return True",
-        "pre_condition_tests": [[0,0],[9,1],[9,10],[-1,0]],
+        "pre_condition_tests": "[[0,0],[9,1],[9,10],[-1,0]]",
         "post_condition": "retval is the smallest of x and y.",
         "post_condition_incomplete": "def check_post_1(retval: int, x: int, y: int) -> bool:\n    \"\"\"\n    Return true if retval is the smallest of x and y.\n    \"\"\"\n",
         "post_condition_solution": "def check_post_solution_1(retval: int, x: int, y: int) -> bool:\n    \"\"\"\n    Return true if retval is the smallest of x and y.\n    \"\"\"\n\n    return (retval==x or retval==y) and retval <=x and retval <= y",
-        "post_condition_tests": [[0,0,0],[1,9,1],[9,9,10],[5,3,5],[0,1,1],[5,5,3]] 
+        "post_condition_tests": "[[0,0,0],[1,9,1],[9,9,10],[5,3,5],[0,1,1],[5,5,3]]" 
     },
     {
         "task_id": "2",
@@ -29,11 +29,11 @@
         "pre_condition": "a is non-null and non-empty",
         "pre_condition_incomplete": "def check_pre_2(a) -> bool:\n    \"\"\"\n    Return true if a is non-null and non-empty\n    \"\"\"",
         "pre_condition_solution": "def check_pre_solution_2(a) -> bool:\n    \"\"\"\n    Return true if a is non-null and non-empty\n    \"\"\"\n    return a != None and len(a) > 0",
-        "pre_condition_tests": [["xxNonexx"],[[]],[[1,2,3,4]],[[5,5,5]],[[5,4]]],
+        "pre_condition_tests": "[[None],[[]],[[1,2,3,4]],[[5,5,5]],[[5,4]]]",
         "post_condition": "retval is the smallest element of a.",
         "post_condition_incomplete": "def check_post_2(retval: int, a) -> bool:\n    \"\"\"\n    Return true if retval is the smallest element of a.\n    \"\"\"\n",
         "post_condition_solution": "def check_post_solution_2(retval: int, a) -> bool:\n    \"\"\"\n    Return true if retval is the smallest element of a.\n    \"\"\"\n\n    return (retval in a) and all(retval <= i for i in a)",
-        "post_condition_tests": [[1,[1,2,3,4]], [5,[5,5,5]], [4,[5,4]], [0,[4,5,1]],[5,[4,5,1]]]
+        "post_condition_tests": "[[1,[1,2,3,4]], [5,[5,5,5]], [4,[5,4]], [0,[4,5,1]],[5,[4,5,1]]]"
     },
     {
         "task_id": "3",
@@ -41,11 +41,11 @@
         "pre_condition": "s is a non-empty string",
         "pre_condition_incomplete": "def check_pre_3(s: str) -> bool:",
         "pre_condition_solution": "def check_pre_solution_3(s: str) -> bool:\n    return len(s) > 0",
-        "pre_condition_tests": [[""],["t3st"],["1234"],["ab"],["#a@c"]],
+        "pre_condition_tests": "[[\"\"],[\"t3st\"],[\"1234\"],[\"ab\"],[\"#a@c\"]]",
         "post_condition": "retval is the reverse of s, if s contains no letters. Else, the program checks that retval is as s, but for each s[i] which is a lower case letter, retval[i] is the upper case, vice versa, and else retval[i] is as s[i].",
         "post_condition_incomplete": "def check_post_3(retval: str, s: str) -> bool:",
         "post_condition_solution": "def check_post_solution_3(retval: str, s: str) -> bool:\n  if all([ not c.isalpha() for c in s]):\n      return retval == s[::-1]\n  if len(retval) != len(s):\n      return False\n  check =  [ (r == x.swapcase()) if x.isalpha() else (r==x) for (r,x) in zip(retval,s) ]\n  return all(check)",
-        "post_condition_tests": [["T3ST","t3st"],["1234","4321"],["AB","ab"],["#A@C","#a@c"],["tesT","TESt"],["TEStEST","tesTest"],["test","test"]]
+        "post_condition_tests": "[[\"T3ST\",\"t3st\"],[\"1234\",\"4321\"],[\"AB\",\"ab\"],[\"#A@C\",\"#a@c\"],[\"tesT\",\"TESt\"],[\"TEStEST\",\"tesTest\"],[\"test\",\"test\"]]"
     },
     {
         "task_id": "4",
@@ -53,11 +53,11 @@
         "pre_condition": "s is a non-empty string and must represent a numberdcccc",
         "pre_condition_incomplete": "def check_pre_4(value: str) -> bool:",
         "pre_condition_solution": "def check_pre_solution_4(value: str) -> bool:\n    try:\n        float(s)\n    except:\n        return False\n    return True",
-        "pre_condition_tests": [["-3.12542"],["5.0.0"],["test"],["18-18"]],
+        "pre_condition_tests": "[[\"-3.12542\"],[\"5.0.0\"],[\"test\"],[\"18-18\"]]",
         "post_condition": "retval must equal the integer closest to the number that s represents. If the number is equidistant from two integers, retval must equal the integer of the two that is farthest from zero.",
         "post_condition_incomplete": "def check_post_4(retval: int, value: str) -> bool:",
         "post_condition_solution": "def check_post_solution_4(retval: int, value: str) -> bool:\n    from math import floor, ceil\n    \n    if value.count('.') == 1:\n        # remove trailing zeros\n        while (value[-1] == '0'):\n            value = value[:-1]\n    \n    num = float(value)\n    if value[-2:] == '.5':\n        if num > 0:\n            res = ceil(num)\n        else:\n            res = floor(num)\n    elif len(value) > 0:\n        res = int(round(num))\n    else:\n        res = 0\n    \n    return retval == res",
-        "post_condition_tests": [[-10,"-9.5"],[0,"0.10000"],[8,"8.50"]] 
+        "post_condition_tests": "[[-10,\"-9.5\"],[0,\"0.10000\"],[8,\"8.50\"]]" 
     },
     {
         "task_id": "5",
@@ -65,11 +65,11 @@
         "pre_condition": "arr is not empty",
         "pre_condition_incomplete": "from typing import List\ndef check_pre_5(arr: List[int]) -> bool:",
         "pre_condition_solution": "from typing import List\ndef check_pre_solution_5(arr: List[int]) -> bool:\n    return len(arr) > 0",
-        "pre_condition_tests": [[[]],[[1,23,456]]],
+        "pre_condition_tests": "[[[]],[[1,23,456]]]",
         "post_condition": "retval is equal to the number of integers in arr that have a sum of digits greater than zero.",
         "post_condition_incomplete": "from typing import List\ndef check_post_5(retval: int, arr: List[int]) -> bool:",
         "post_condition_solution": "from typing import List\ndef check_post_solution_5(retval: int, arr: List[int]) -> bool:\n    def digits_sum(n):\n        neg = 1\n        if n < 0: n, neg = -1 * n, -1 \n        n = [int(i) for i in str(n)]\n        n[0] = n[0] * neg\n        return sum(n)\n    return retval == len(list(filter(lambda x: x > 0, [digits_sum(i) for i in arr])))",
-        "post_condition_tests": [[0,[-321, 0, -401]],[2,[13,-12,-622]],[1,[18,-199]],[2,[0,-810211]]]
+        "post_condition_tests": "[[0,[-321, 0, -401]],[2,[13,-12,-622]],[1,[18,-199]],[2,[0,-810211]]]"
     },
     {
         "task_id": "6",
@@ -77,11 +77,11 @@
         "pre_condition": "s must be a string containing letters only",
         "pre_condition_incomplete": "def check_pre_6(s: str) -> bool:",
         "pre_condition_solution": "def check_pre_solution_6(s: str) -> bool:\n    return s.isalpha()",
-        "pre_condition_tests": [["123abc"],["AbCDeFGG"],["a-bcdef+"],[""]],
+        "pre_condition_tests": "[[\"123abc\"],[\"AbCDeFGG\"],[\"a-bcdef+\"],[\"\"]]",
         "post_condition": "retval is True when s is longer than 3 letters and is a string where all consecutive 4 letters are distinct",
         "post_condition_incomplete":"def check_post_6(retval: bool, s: str) -> bool:",
         "post_condition_solution": "def check_post_solution_6(retval: bool, s: str) -> bool:\n    if len(s) < 3:\n        return retval == False\n    for i in range(len(s) - 2):\n        if s[i] == s[i+1] or s[i+1] == s[i+2] or s[i] == s[i+2]:\n            return retval == False\n    return retval == True",
-        "post_condition_tests": [[false, "aaabcd"],[true, "bdfhjlbdhf"],[true, "abcdaba"],[false,"abcabcabc"]]
+        "post_condition_tests": "[[False, \"aaabcd\"],[True, \"bdfhjlbdhf\"],[True, \"abcdaba\"],[False,\"abcabcabc\"]]"
     },
     {
         "task_id": "7",
@@ -89,11 +89,11 @@
         "pre_condition": "always return true",
         "pre_condition_incomplete": "def check_pre_7(a:int, h:int) -> bool:",
         "pre_condition_solution": "def check_pre_solution_7(a:int, h:int) -> bool:\n    return True",
-        "pre_condition_tests": [[5,5],[0,1000]],
+        "pre_condition_tests": "[[5,5],[0,1000]]",
         "post_condition": "retval must equal the area of a triangle with height h and a side that has length a.",
         "post_condition_incomplete": "def check_post_7(retval: float, a: int, h: int) -> bool:",
         "post_condition_solution": "def check_post_solution_7(retval: float, a: int, h: int) -> bool:\n    return retval == a * h / 2.0",
-        "post_condition_tests": [[24.5,7,7],[1,12,3]]
+        "post_condition_tests": "[[24.5,7,7],[1,12,3]]"
     },
     {
         "task_id": "8",
@@ -101,11 +101,11 @@
         "pre_condition": "s is a string that only consists of square brackets.",
         "pre_condition_incomplete": "def check_pre_8(s: str) -> bool:",
         "pre_condition_solution": "def check_pre_solution_8(s: str) -> bool:\n    for l in s:\n        if (l != '[') & (l != ']'):\n            return False\n    return True",
-        "pre_condition_tests": [["[[[[["],[""],["aaabcd"],["[][]"]],
+        "pre_condition_tests": "[[\"[[[[[\"],[\"\"],[\"aaabcd\"],[\"[][]\"]]",
         "post_condition": "retval is only True when there is a nested pair of [] in s",
         "post_condition_incomplete":"def check_post_8(retval: bool, s: str) -> bool:",
         "post_condition_solution": "def check_post_solution_8(retval: bool, s: str) -> bool:\n    opening_bracket_index = []\n    closing_bracket_index = []\n    for i in range(len(s)):\n        if s[i] == '[':\n            opening_bracket_index.append(i)\n        else:\n            closing_bracket_index.append(i)\n    closing_bracket_index.reverse()\n    cnt = 0\n    i = 0\n    l = len(closing_bracket_index)\n    for idx in opening_bracket_index:\n        if i < l and idx < closing_bracket_index[i]:\n            cnt += 1\n            i += 1\n    return cnt >= 2",
-        "post_condition_tests": [[true,"[[[[[[[[[[]]"],[false,"[][[[[[[[[]"],[true,"[][][[[]"],[false,"[[[[[][[][]"]]
+        "post_condition_tests": "[[True,\"[[[[[[[[[[]]\"],[False,\"[][[[[[[[[]\"],[True,\"[][][[[]\"],[False,\"[[[[[][[][]\"]]"
 
     },
     {
@@ -114,10 +114,10 @@
         "pre_condition": "always return True",
         "pre_condition_incomplete": "def check_pre_9(n: int) -> bool:",
         "pre_condition_solution": "def check_pre_solution_9(n: int) -> bool:\n    return True",
-        "pre_condition_tests": [[2],[0],[-8]],
+        "pre_condition_tests": "[[2],[0],[-8]]",
         "post_condition": "retval is equal to the largest number that divides n evenly, smaller than n",
         "post_condition_incomplete": "def check_post_9(retval: int, n: int) -> bool:",
         "post_condition_solution": "def check_post_solution_9(retval: int, n: int) -> bool:\n    for i in reversed(range(n)):\n        if n % i == 0:\n            return retval == i",
-        "post_condition_tests": [[7,49],[2,32]]
+        "post_condition_tests": "[[7,49],[2,32]]"
     }
 ]
