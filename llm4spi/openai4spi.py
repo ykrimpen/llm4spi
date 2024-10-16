@@ -32,7 +32,13 @@ def create_completion(
         ]
     )
 
-    return completion.choices[0].message.content
+    result = completion.choices[0].message.content
+    # fix AI's answer if needed:
+    if result.startswith('def'):
+        # we only want the body, strip-off the header:
+        lines = result.split('\n')[1:]
+        result = '\n'.join(lines)
+    return result
 
 
 def generate_task_result(
@@ -59,6 +65,7 @@ def generate_task_result(
 def generate_results(
         client: OpenAI,
         datafile:str,
+        reportfile:str,
         specificProblem:str,
         experimentName:str,
         enableEvaluation: bool,
@@ -77,7 +84,7 @@ def generate_results(
         generate_task_result(client, tasks[task], prompt_type=prompt_type)
 
     if enableEvaluation:
-        evaluate_task_results(tasks)
+        evaluate_task_results(tasks,reportfile)
         results = [{
             "task_id": tasks[task]["task_id"],
             "pre_condition_completion": tasks[task]["pre_condition_completion"],
@@ -103,9 +110,10 @@ if __name__ == '__main__':
     client = OpenAI(api_key=openai_api_key)
     dataset = ZEROSHOT_DATA
     ROOT = os.path.dirname(os.path.abspath(__file__))
-    dataset = os.path.join(ROOT, "..", "data", "x.json")
-    #dataset = os.path.join(ROOT, "..", "data", "simple-specs.json")
+    #dataset = os.path.join(ROOT, "..", "data", "x.json")
+    dataset = os.path.join(ROOT, "..", "data", "simple-specs.json")
     generate_results(client, dataset, 
+                    "results/evaluation.txt",
                      specificProblem = None,
                      experimentName = "gpt3.5",     
                      enableEvaluation=True, 

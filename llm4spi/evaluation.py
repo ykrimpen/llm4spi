@@ -111,27 +111,48 @@ def evaluate_task_result(task: Dict, condition: str):
 
 
 def print_acceptance_rate(tasks: Dict[str,Dict]):
-    total = len(tasks)
-
-    pre_condition_evaluations = [tasks[task]["pre_condition_evaluation"] for task in tasks]
+    
+    pre_condition_evaluations = [ task["pre_condition_evaluation"] for task in tasks.values()]
     pre_condition_evaluations = [ r for r in pre_condition_evaluations if r != None]
-    post_condition_evaluations = [tasks[task]["post_condition_evaluation"] for task in tasks]
+    post_condition_evaluations = [ task["post_condition_evaluation"] for task in tasks.values()]
     post_condition_evaluations = [ r for r in post_condition_evaluations if r != None]
-    all_evaluations = pre_condition_evaluations + post_condition_evaluations
-
-    counter = Counter(all_evaluations)
-    total = counter.total()
+    
+    preCounter = Counter(pre_condition_evaluations)
+    postCounter = Counter(post_condition_evaluations)
 
     print("** Evaluation result:")
-    print(f"   N = {total}")
-    for (state, count) in counter.items():
-        print(f"   {state}: {count} ({count/total*100}%)")
+    if preCounter.total() > 0 :
+        tot = preCounter.total()
+        print(f"   #pre-cond = {tot}")
+        for (state, count) in preCounter.items():
+            print(f"   {state}: {count} ({count/tot*100}%)")
 
+    if postCounter.total() > 0 :
+        tot = postCounter.total()
+        print(f"   #post-cond = {tot}")
+        for (state, count) in postCounter.items():
+            print(f"   {state}: {count} ({count/tot*100}%)")
 
-def evaluate_task_results(tasks: Dict[str,Dict]) -> None:
+def write_evaluation_report(tasks: Dict[str,Dict], reportfile:str):
+    if reportfile == None: return
+    with open(reportfile,'w') as f:
+        for tId in tasks:
+            task = tasks[tId]
+            precondEval = task["pre_condition_evaluation"]
+            if precondEval != None:
+                f.write(f"{tId}-pre : {precondEval}\n")
+            postcondEval =  task["post_condition_evaluation"]
+            if postcondEval != None:
+                f.write(f"{tId}-post : {postcondEval}\n")
+
+def evaluate_task_results(tasks: Dict[str,Dict], reportfile:str) -> None:
     for task in tasks:
         task_dict = tasks[task]
         evaluate_task_result(task_dict, "pre")
         evaluate_task_result(task_dict, "post")
 
+    if reportfile != None:
+        write_evaluation_report(tasks,reportfile)
+
     print_acceptance_rate(tasks)
+

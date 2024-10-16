@@ -16,9 +16,15 @@ def printPrograms_InDataSet(data_file: str, whichProblem:str) -> None :
       P = problems[p]
       print("")
       print(f"** Problem {p} **")
-      print(P["program"])
-      print(P["pre_condition_solution"])
-      print(P["post_condition_solution"])
+      if "program" in P:
+         print("** Program:")
+         print(P["program"])
+      if "pre_condition_solution" in P:
+         print("** Pre-cond:")
+         print(P["pre_condition_solution"])
+      if "post_condition_solution" in P:
+         print("** Post-cond:")
+         print(P["post_condition_solution"])
 
 def checkPrePostSolutions_InDataSet(data_file: str) -> None :
    """
@@ -76,7 +82,7 @@ def checkPrePostSolutions_InDataSet(data_file: str) -> None :
 if __name__ == '__main__':
    dataset = data.ZEROSHOT_DATA
    ROOT = os.path.dirname(os.path.abspath(__file__))
-   dataset = os.path.join(ROOT, "..", "data", "x.json")
-   #dataset = os.path.join(ROOT, "..", "data", "simple-specs.json")
+   #dataset = os.path.join(ROOT, "..", "data", "x.json")
+   dataset = os.path.join(ROOT, "..", "data", "simple-specs.json")
    checkPrePostSolutions_InDataSet(dataset)
-   #printPrograms_InDataSet(dataset, whichProblem="P0")
+   printPrograms_InDataSet(dataset, whichProblem="arith_8")
