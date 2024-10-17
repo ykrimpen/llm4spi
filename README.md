@@ -1,7 +1,28 @@
-# Project: using LLM to get SPi
+# Project: using LLM to get SPises
 
-* Contains a dataset, currently still preliminary.
-* Contains an evaluation script.
+Since LLMs are sooo smart, we wonder how good they are for generating 'formal' specifications. Or at least, specifications that can be executed so we can actually use them for checking the inputs and outputs of programs under test.
+
+Example prompt:
+
+   _Give a Python program `Postcondition(joke:str)` that checks whether the joke is indeed funny._
+
+Answer by OpenAI's GPT:
+
+```python
+def Postcondition(joke: str) -> bool:
+    # Use VADER for a basic sentiment analysis approach
+    sia = SentimentIntensityAnalyzer()
+    sentiment = sia.polarity_scores(joke)
+
+    # Consider a joke "funny" if it has a positive sentiment
+    if sentiment['pos'] > sentiment['neg']:
+        return True
+    return False
+
+# Example usage
+joke = "Why don't scientists trust atoms? Because they make up everything!"
+print(Postcondition(joke))  # Output: True
+```
 
 #### Using GPT4All.
 
