@@ -7,11 +7,12 @@ from datetime import datetime
 from typing import Dict, List
 from openai import OpenAI
 import os
+import time
 
 from data import ZEROSHOT_DATA, read_problems, write_jsonl
 from prompting import create_prompt
 from evaluation import evaluate_task_results
-from pythonSrcUtils import extractFunctionBody
+from pythonSrcUtils import extractFunctionBody, extractPythonFunctionDef_fromMarkDownQuote
 
 class PromptResponder:
     """
@@ -64,16 +65,21 @@ def generate_results(
 
     An evaluation report, along with the produced solutions from the AI are saved in files in /results.
     """
+    time0 = time.time()
     tasks = read_problems(datafile)
+    timeSpentReadingData = time.time() - time0
 
     if specificProblem != None:
         tasks = { specificProblem : tasks[specificProblem] }
 
+    time1 = time.time()
     for task in tasks:
         generate_task_result(AI, tasks[task], prompt_type=prompt_type)
+    timeSpentAI = time.time() - time1
 
     current_date = (datetime.now()).strftime("%d_%m_%Y_%H_%M_%S")
 
+    time2 = time.time()
     if enableEvaluation:
         reportfile = f"results/{experimentName}_evaluation_{prompt_type}_{current_date}.txt"
         evaluate_task_results(tasks,reportfile)
@@ -91,9 +97,18 @@ def generate_results(
             "pre_condition_completion": tasks[task]["pre_condition_completion"],
             "post_condition_completion": tasks[task]["post_condition_completion"]
             } for task in tasks]
-    
+    timeSpentAnalysis = time.time() - time2
+
     current_date = (datetime.now()).strftime("%d_%m_%Y_%H_%M_%S")
     write_jsonl(f"results/{experimentName}_model_responses_{prompt_type}_{current_date}.jsonl", results)
+
+    overallTime = time.time() - time0
+
+    print(f"   time loading data: {timeSpentReadingData}")
+    print(f"   time AI: {timeSpentAI}")
+    print(f"   time analysis: {timeSpentAnalysis}")
+    print(f"   time all: {overallTime}")
+    
     return
 
 
@@ -103,8 +118,9 @@ def fix_completionString(completion:str) -> str :
     the function header (we will only ask it to return function bodies). 
     """
     if completion==None: return None
-    # for now fixing is just stripping of header
-    return extractFunctionBody(completion)
+    completion = extractPythonFunctionDef_fromMarkDownQuote(completion)
+    completion = extractFunctionBody(completion)
+    return completion
 
     
 def generate_task_result(
