@@ -85,4 +85,4 @@ if __name__ == '__main__':
    #dataset = os.path.join(ROOT, "..", "data", "x.json")
    dataset = os.path.join(ROOT, "..", "data", "simple-specs.json")
    checkPrePostSolutions_InDataSet(dataset)
-   printPrograms_InDataSet(dataset, whichProblem="arith_8")
+   printPrograms_InDataSet(dataset, whichProblem="logic_8")

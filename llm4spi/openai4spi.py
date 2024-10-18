@@ -182,8 +182,8 @@ if __name__ == '__main__':
     openai_api_key = os.environ.get('OPENAI_API_KEY') 
     openAIclient = OpenAI(api_key=openai_api_key)
     modelId = "gpt-3.5-turbo"
-    #modelId ="gpt-4-turbo",
-    #modelId ="o1-mini",  --> still in Beta, we have no access!
+    #modelId ="gpt-4-turbo"
+    #modelId ="o1-mini"  --> still in Beta, we have no access!
     myAIclient = MyOpenAIClient(openAIclient,modelId)
 
     dataset = ZEROSHOT_DATA

@@ -1,10 +1,33 @@
-# Project: using LLM to get SPises
+# Project: using LLMs to write SPises
 
-Since LLMs are sooo smart, we wonder how good they are for generating 'formal' specifications. Or at least, specifications that can be executed so we can actually use them for checking the inputs and outputs of programs under test.
+Since LLMs are so smart, we wonder how good they are for generating 'formal' specifications. Or at least, specifications that can be executed so we can actually use them for checking the inputs and outputs of programs under test.
 
-Example prompt:
+In the current study we look both commercial LLMs like OpenAI GPT as well open source LLMs for writing specifications in the form of pre- and post-conditions.
 
-   _Give a Python program `Postcondition(joke:str)` that checks whether the joke is indeed funny._
+simple-specs, N=25.
+
+  |  | accepted |
+  |--|----------|
+  | GPT 3.5         | 76%  |
+  | GPT 4           | 88%  |
+  | Meta-Llama-3-8B | 32%  |
+  | Mistral-7B      | 10%  |
+  | Orca-mini-3B    | 4%   |
+
+
+Example prompt-1: _Give a Python program `Postcondition(x,y,z)` that checks whether the sum of x and y is zero or equal to z_
+
+Answer by Orca-mini-3B: 😅
+
+```python
+Postcondition(x,y,z):
+     if x + y == 0 or x - y == 0 or z - x == 0:
+     return True
+     else:
+     return False
+```
+
+Example prompt-2: _Give a Python program `Postcondition(joke:str)` that checks whether the joke is indeed funny._ 😉
 
 Answer by OpenAI's GPT:
 
