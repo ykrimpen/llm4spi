@@ -10,9 +10,9 @@ simple-specs, N=25.
   |--|----------|
   | GPT 3.5         | 76%  |
   | GPT 4           | 88%  |
-  | Meta-Llama-3-8B | 32%  |
-  | Mistral-7B      | 10%  |
-  | Orca-mini-3B    | 4%   |
+  | Meta-Llama-3-8B | 36%  |
+  | Mistral-7B      | 36%  |
+  | Orca-mini-3B    | 20%   |
 
 
 Example prompt-1: _Give a Python program `Postcondition(x,y,z)` that checks whether the sum of x and y is zero or equal to z_

@@ -12,7 +12,7 @@ import time
 from data import ZEROSHOT_DATA, read_problems, write_jsonl
 from prompting import create_prompt
 from evaluation import evaluate_task_results
-from pythonSrcUtils import extractFunctionBody, extractPythonFunctionDef_fromMarkDownQuote
+from pythonSrcUtils import extractFunctionBody, extractPythonFunctionDef_fromMarkDownQuote, fix_indentation
 
 class PromptResponder:
     """
@@ -112,15 +112,18 @@ def generate_results(
     return
 
 
-def fix_completionString(completion:str) -> str :
+def fix_completionString(header:str, completion:str) -> str :
     """
     Try to fix the completion string sent by AI, e.g. by stripping of
     the function header (we will only ask it to return function bodies). 
     """
     if completion==None: return None
     completion = extractPythonFunctionDef_fromMarkDownQuote(completion)
-    completion = extractFunctionBody(completion)
-    return completion
+    body1 = extractFunctionBody(completion)
+    body2 = fix_indentation(header,body1)
+    if body2 != None :
+        return body2
+    return body1
 
     
 def generate_task_result(
@@ -142,13 +145,15 @@ def generate_task_result(
     pre_condition_completion = None
     if pre_condition_prompt != None:
         pre_condition_completion = AI.completeIt(pre_condition_prompt)
-        pre_condition_completion = fix_completionString(pre_condition_completion)
+        preCondHeader = task["pre_condition_incomplete"]
+        pre_condition_completion = fix_completionString(preCondHeader,pre_condition_completion)
     
     post_condition_prompt     = create_prompt(task, condition_type="post", prompt_type=prompt_type)
     post_condition_completion = None
     if post_condition_prompt != None:
         post_condition_completion = AI.completeIt(post_condition_prompt)
-        post_condition_completion = fix_completionString(post_condition_completion)
+        postCondHeader = task["post_condition_incomplete"]
+        post_condition_completion = fix_completionString(postCondHeader,post_condition_completion)
     
     task["pre_condition_completion"] = pre_condition_completion
     task["post_condition_completion"] = post_condition_completion
@@ -197,5 +202,6 @@ if __name__ == '__main__':
                      experimentName = "gpt3.5",     
                      enableEvaluation=True, 
                      prompt_type="zshot")
+    
     #generate_results(client, dataset, specificProblem = None, experimentName="gpt3.5", enableEvaluation=True, prompt_type="cot", )
     
