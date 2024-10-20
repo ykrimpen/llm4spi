@@ -2,7 +2,7 @@
 
 Since LLMs are so smart, we wonder how good they are for generating 'formal' specifications. Or at least, specifications that can be executed so we can actually use them for checking the inputs and outputs of programs under test.
 
-In the current study we look both commercial LLMs like OpenAI GPT as well open source LLMs for writing specifications in the form of pre- and post-conditions.
+In the current study we look into both commercial LLMs like OpenAI GPT as well open source LLMs for writing specifications in the form of pre- and post-conditions.
 
 On simple-specs, N=30 involving simple predicates on number-arithmetics, logical relations, and quantifiers.
 
@@ -27,7 +27,7 @@ Postcondition(x,y,z):
      return False
 ```
 
-Example prompt-2: _Give a Python program `Postcondition(joke:str)` that checks whether the joke is indeed funny._ 😉
+Example prompt-2: _Give a Python program `Postcondition(joke:str)` that checks whether the joke is funny._ 😉
 
 Answer by OpenAI's GPT:
 
