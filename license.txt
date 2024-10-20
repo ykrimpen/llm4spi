@@ -1,0 +1,12 @@
+llm4spi: this project.
+
+"The work in this project" refers to the code and datasets in llm4spi, created by llm4spi Contributors. It does not include libraries used by the project.
+
+Contributors: morgainep, wooshrow.
+
+
+Re-use of the work in this project requires an explicit permission of the Contributors.
+
+
+
+ 
