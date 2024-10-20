@@ -7,7 +7,7 @@ def compare_results(expected: list, predicted: list) -> str:
     """
     Returns acception state after comparison of the expected results and the actual predicted results
     """
-    if any((prediction == "failed") |  (type(prediction) != bool) for prediction in predicted):
+    if any((prediction == "failed") or (type(prediction) != bool) for prediction in predicted):
         return "failed"
     
     if expected == predicted:
@@ -17,10 +17,10 @@ def compare_results(expected: list, predicted: list) -> str:
     any_false_positive = False
 
     for (expectation,prediction) in zip(expected,predicted):
-        any_false_negative = expectation & (not prediction)
-        any_false_positive = (not expectation) & prediction
+        any_false_negative = any_false_negative or (expectation and (not prediction))
+        any_false_positive = any_false_positive or ((not expectation) and prediction)
     
-    if any_false_negative & any_false_positive:
+    if any_false_negative and any_false_positive:
         return "rejected"
     if any_false_negative:
         return "too_strong"

@@ -52,7 +52,7 @@
         "program": "\ndef closest_integer(value):\n    '''\n    Create a function that takes a value (string) representing a number\n    and returns the closest integer to it. If the number is equidistant\n    from two integers, round it away from zero.\n\n    Examples\n    >>> closest_integer(\"10\")\n    10\n    >>> closest_integer(\"15.3\")\n    15\n\n    Note:\n    Rounding away from zero means that if the given number is equidistant\n    from two integers, the one you should return is the one that is the\n    farthest from zero. For example closest_integer(\"14.5\") should\n    return 15 and closest_integer(\"-14.5\") should return -15.\n    '''\n",
         "pre_condition": "s is a non-empty string and must represent a numberdcccc",
         "pre_condition_incomplete": "def check_pre_completion_4(value: str) -> bool:",
-        "pre_condition_solution": "def check_pre_solution_4(value: str) -> bool:\n    try:\n        float(s)\n    except:\n        return False\nreturn True",
+        "pre_condition_solution": "def check_pre_solution_4(value: str) -> bool:\n    try:\n        float(s)\n    except:\n        return False\n    return True",
         "pre_condition_tests": [["-3.12542"],["5.0.0"],["test"],["18-18"]],
         "post_condition": "retval must equal the integer closest to the number that s represents. If the number is equidistant from two integers, retval must equal the integer of the two that is farthest from zero.",
         "post_condition_incomplete": "def check_post_completion_4(retval: int, value: str) -> bool:",
