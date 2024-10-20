@@ -4,15 +4,15 @@ Since LLMs are so smart, we wonder how good they are for generating 'formal' spe
 
 In the current study we look both commercial LLMs like OpenAI GPT as well open source LLMs for writing specifications in the form of pre- and post-conditions.
 
-simple-specs, N=25.
+On simple-specs, N=30 involving simple predicates on number-arithmetics, logical relations, and quantifiers.
 
   |  | accepted |
   |--|----------|
-  | GPT 3.5         | 76%  |
-  | GPT 4           | 88%  |
-  | Meta-Llama-3-8B | 36%  |
-  | Mistral-7B      | 36%  |
-  | Orca-mini-3B    | 20%   |
+  | GPT 3.5         | 80%  |
+  | GPT 4           | 87%  |
+  | Meta-Llama-3-8B | 40%  |
+  | Mistral-7B      | 37%  |
+  | Orca-mini-3B    | 10%  |
 
 
 Example prompt-1: _Give a Python program `Postcondition(x,y,z)` that checks whether the sum of x and y is zero or equal to z_

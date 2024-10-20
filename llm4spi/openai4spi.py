@@ -186,8 +186,8 @@ class MyOpenAIClient(PromptResponder):
 if __name__ == '__main__':
     openai_api_key = os.environ.get('OPENAI_API_KEY') 
     openAIclient = OpenAI(api_key=openai_api_key)
-    modelId = "gpt-3.5-turbo"
-    #modelId ="gpt-4-turbo"
+    #modelId = "gpt-3.5-turbo"
+    modelId ="gpt-4-turbo"
     #modelId ="o1-mini"  --> still in Beta, we have no access!
     myAIclient = MyOpenAIClient(openAIclient,modelId)
 
@@ -199,7 +199,7 @@ if __name__ == '__main__':
     generate_results(myAIclient,
                      dataset, 
                      specificProblem = None,
-                     experimentName = "gpt3.5",     
+                     experimentName = "gpt4",     
                      enableEvaluation=True, 
                      prompt_type="zshot")
     
