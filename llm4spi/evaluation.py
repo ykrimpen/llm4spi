@@ -6,8 +6,23 @@ from collections import Counter
 
 def compare_results(expected: list, predicted: list) -> str:
     """
-    Returns acception state after comparison of the expected results and the actual predicted results
+    Returns acception state after comparison of the expected results and the actual predicted results.
+    Note: None from prediction will be interpreted as 'making no prediction', and
+          will be excluded from judgement.
     """
+    
+    # filter first the None-predictions
+    zz = [ (e,p) for (e,p) in zip(expected,predicted) if p != None ]
+    if len(zz) == 0:
+        # if all predictions are None, we declare "fail":
+        return "failed"
+    # only inspect the expecteds and predictions for which the predictions are not None:
+    expected   = [ e for (e,p) in zz ]
+    predicted = [ p for (e,p) in zz ]
+
+    #print(f">>> evaluated expecteds: {expected}")
+    #print(f">>> evaluated predictions: {predicted}")
+
     if any((prediction == "failed") |  (type(prediction) != bool) for prediction in predicted):
         return "failed"
     
@@ -73,8 +88,9 @@ def evaluate_task_result(task: Dict, condition: str):
     try:
         exec(solution_function,globals())
     except:
-        print(">>>>>>")
+        print(">>>>>> The def of the solution function crashed!")
         print(solution_function)
+        return
 
     test_cases = eval(task[f"{condition}_condition_tests"])
 
@@ -96,6 +112,7 @@ def evaluate_task_result(task: Dict, condition: str):
     try:
         exec(complete_function,globals())
     except:
+        print(f">>>>>> The def of completion-proposal crashed!")
         task[f"{condition}_condition_evaluation"] = "failed"
     
     # running the test-cases on the AI's function; this may fail too:

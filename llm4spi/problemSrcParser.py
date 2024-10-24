@@ -22,6 +22,11 @@ def parseProblems(dataSetDir:str) -> Dict[str, Dict]:
 def writeProblemsAsJSONL(dataSetDir:str, outputfile:str):
     problems = parseProblems(dataSetDir)
     problems = [ problems[pid] for pid in sorted(problems.keys()) ]
+    print("**")
+    for P in problems:
+       print("  " + P['task_id'])
+    print(f"** {len(problems)}")
+
     with open(outputfile,'wb') as f:
         f.write((json.dumps(problems,indent=3)).encode('utf-8'))
 
@@ -42,11 +47,13 @@ def parseProblem(problemSrcFile:str) -> Dict :
     precond  = getCode(content,"pre_condition_solution")
     preCondHeader = (precond.split('\n')[0]).replace("solution_","")
     precondDesc = getTxtDesc(content,"pre_condition")
-    precondTestInputs = getCode(content,"pre_condition_tests").split('= ')[1]
+    tests0 = getCode(content,"pre_condition_tests")
+    precondTestInputs = "" if tests0 == '' else tests0.split('= ')[1]
     postcond = getCode(content,"post_condition_solution")
     postCondHeader = (postcond.split('\n')[0]).replace("solution_","")
     postcondDesc = getTxtDesc(content,"post_condition")
-    postcondTestInputs = getCode(content,"post_condition_tests").split('= ')[1]
+    tests1 = getCode(content,"post_condition_tests")
+    postcondTestInputs = '' if tests1 == '' else tests1.split('= ')[1]
 
     result = { "task_id" : tid,
                "program-desc" : prgDesc,
@@ -81,12 +88,13 @@ def getFragment(src:str, tag:str, openMarker:str, closeMarker:str) -> str:
     fragments = []
     foundStart = False 
     for row in lines:
+        stripped_row = row.strip()
         if foundStart:
-            if row.startswith(closeMarker):
+            if stripped_row.strip().startswith(closeMarker):
                 break
             else:
                 fragments.append(row)
-        if row.startswith(tagOpen1) or row.startswith(tagOpen2):
+        if stripped_row.startswith(tagOpen1) or stripped_row.startswith(tagOpen2):
             foundStart = True
 
     return ('\n'.join(fragments)).lstrip()
@@ -94,7 +102,7 @@ def getFragment(src:str, tag:str, openMarker:str, closeMarker:str) -> str:
 
 if __name__ == '__main__':
     # some tests
-    #print(parseProblem("../data/human-eval-specs/P0/P0.py"))
-    #print(parseProblems("../data/human-eval-specs"))
+    #print(parseProblem("../../llm4spiDatasets/data/human-eval-specs/P0/P0.py"))
+    #print(parseProblems("../../llm4spiDatasets/data/human-eval-specs"))
 
-    writeProblemsAsJSONL("../data/human-eval-specs","../data/x.json")
+    writeProblemsAsJSONL("../../llm4spiDatasets/data/human-eval-specs","../../llm4spiDatasets/data/x.json")

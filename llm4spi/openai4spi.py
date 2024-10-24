@@ -186,20 +186,20 @@ class MyOpenAIClient(PromptResponder):
 if __name__ == '__main__':
     openai_api_key = os.environ.get('OPENAI_API_KEY') 
     openAIclient = OpenAI(api_key=openai_api_key)
-    #modelId = "gpt-3.5-turbo"
-    modelId ="gpt-4-turbo"
+    modelId = "gpt-3.5-turbo"
+    #modelId ="gpt-4-turbo"
     #modelId ="o1-mini"  --> still in Beta, we have no access!
     myAIclient = MyOpenAIClient(openAIclient,modelId)
 
     dataset = ZEROSHOT_DATA
     ROOT = os.path.dirname(os.path.abspath(__file__))
-    #dataset = os.path.join(ROOT, "..", "data", "x.json")
-    dataset = os.path.join(ROOT, "..", "data", "simple-specs.json")
+    dataset = os.path.join(ROOT, "..", "..", "llm4spiDatasets", "data", "x.json")
+    #dataset = os.path.join(ROOT, "..", "..", "llm4spiDatasets", "data", "simple-specs.json")
 
     generate_results(myAIclient,
                      dataset, 
-                     specificProblem = None,
-                     experimentName = "gpt4",     
+                     specificProblem = "HE108",
+                     experimentName = "gpt3.5",     
                      enableEvaluation=True, 
                      prompt_type="zshot")
     

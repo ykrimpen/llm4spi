@@ -4,6 +4,7 @@
 import data
 import os
 
+
 def printPrograms_InDataSet(data_file: str, whichProblem:str) -> None :
    """
    Print the programs in the dataset.
@@ -79,10 +80,22 @@ def checkPrePostSolutions_InDataSet(data_file: str) -> None :
 
    print("** All seem to be good.")
 
+
+def printField_InDataSet(data_file:str, id:str, idFieldName:str, fieldToPrint:str) -> None :
+   for P in data.stream_jsonl(data_file) :
+     if P[idFieldName] == id :
+        if fieldToPrint in P :
+           print(P[fieldToPrint])
+           return
+        else :
+           print(f">>> {id} has no field {fieldToPrint}!")
+   print(f">>> the data has no entry for {id}!")
+
 if __name__ == '__main__':
    dataset = data.ZEROSHOT_DATA
-   ROOT = os.path.dirname(os.path.abspath(__file__))
-   #dataset = os.path.join(ROOT, "..", "data", "x.json")
-   dataset = os.path.join(ROOT, "..", "data", "simple-specs.json")
-   checkPrePostSolutions_InDataSet(dataset)
-   printPrograms_InDataSet(dataset, whichProblem="logic_8")
+   #ROOT = os.path.dirname(os.path.abspath(__file__))
+   #dataset = os.path.join(ROOT, "..", "..", "llm4spiDatasets", "data", "x.json")
+   #dataset = os.path.join(ROOT, "..", "..", "llm4spiDatasets", "data", "simple-specs.json")
+   #checkPrePostSolutions_InDataSet(dataset)
+   #printPrograms_InDataSet(dataset, whichProblem="5")
+   printField_InDataSet("../../llm4spiDatasets/data/humaneval-reformatted.json","HumanEval/108","task_id","canonical_solution")
