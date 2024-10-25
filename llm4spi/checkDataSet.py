@@ -98,4 +98,4 @@ if __name__ == '__main__':
    #dataset = os.path.join(ROOT, "..", "..", "llm4spiDatasets", "data", "simple-specs.json")
    #checkPrePostSolutions_InDataSet(dataset)
    #printPrograms_InDataSet(dataset, whichProblem="5")
-   printField_InDataSet("../../llm4spiDatasets/data/humaneval-reformatted.json","HumanEval/108","task_id","canonical_solution")
+   printField_InDataSet("../../llm4spiDatasets/data/humaneval-reformatted.json","HumanEval/24","task_id","canonical_solution")

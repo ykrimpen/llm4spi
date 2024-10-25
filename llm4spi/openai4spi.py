@@ -198,7 +198,7 @@ if __name__ == '__main__':
 
     generate_results(myAIclient,
                      dataset, 
-                     specificProblem = "HE108",
+                     specificProblem = "HE24",
                      experimentName = "gpt3.5",     
                      enableEvaluation=True, 
                      prompt_type="zshot")

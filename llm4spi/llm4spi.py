@@ -40,22 +40,22 @@ class MyGPT4ALL_Client(PromptResponder):
 if __name__ == '__main__':
     #gpt4allClient = GPT4All("orca-mini-3b-gguf2-q4_0.gguf", model_path="/root/models", device="cuda:NVIDIA A16") #device is specific to cluster's GPU, change accordingly when run on a different computer
     #gpt4allClient = GPT4All("orca-mini-3b-gguf2-q4_0.gguf", model_path="../../models", device="cpu")
-    gpt4allClient = GPT4All("mistral-7b-openorca.Q4_0.gguf", model_path="../../models", device="cpu")
+    #gpt4allClient = GPT4All("mistral-7b-openorca.Q4_0.gguf", model_path="../../models", device="cpu")
     # this star-coder gives load-error
     #gpt4allClient = GPT4All("starcoder-q4_0.gguf", model_path="../../models", device="cpu")
-    #gpt4allClient = GPT4All("Meta-Llama-3-8B-Instruct.Q4_0.gguf", model_path="../../models", device="cpu")
+    gpt4allClient = GPT4All("Meta-Llama-3-8B-Instruct.Q4_0.gguf", model_path="../../models", device="cpu")
     
     
     myAIclient = MyGPT4ALL_Client(gpt4allClient)
 
     dataset = ZEROSHOT_DATA
     ROOT = os.path.dirname(os.path.abspath(__file__))
-    #dataset = os.path.join(ROOT, "..", "..", "llm4spiDatasets", "data", "x.json")
-    dataset = os.path.join(ROOT, "..", "..", "llm4spiDatasets", "data", "simple-specs.json")
+    dataset = os.path.join(ROOT, "..", "..", "llm4spiDatasets", "data", "x.json")
+    #dataset = os.path.join(ROOT, "..", "..", "llm4spiDatasets", "data", "simple-specs.json")
 
     generate_results(myAIclient,
                      dataset, 
-                     specificProblem = None,
-                     experimentName = "mistral-7b",     
+                     specificProblem = "HE24",
+                     experimentName = "Meta-Llama-3-8B",     
                      enableEvaluation=True, 
                      prompt_type="zshot")
