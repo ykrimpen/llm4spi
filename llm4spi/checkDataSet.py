@@ -40,8 +40,10 @@ def checkPrePostSolutions_InDataSet(data_file: str) -> None :
       problemId = p
       print(f"** Problem {problemId}:")
       
+      preSolution = None
+
       if not ("pre_condition_solution" in P) :
-         print(f"  pre-cond: none given.")
+         print(f"   pre-cond: none given.")
 
       else:
          preSolution = P["pre_condition_solution"]
@@ -77,7 +79,28 @@ def checkPrePostSolutions_InDataSet(data_file: str) -> None :
          except:
             print(f">>> OUCH post-cond problem {p} has a crashing test")
             raise Exception("OUCH")
-
+         # comparing with the program's run, if the program is provided
+         if "program" in P:
+            prg = P["program"]
+            try:
+               exec(prg,globals())
+            except:
+               print(f">>> OUCH the program of problem {p} has a problem.")
+               print(prg)
+               raise Exception("OUCH")
+            zzz = []
+            for tc in test_cases:
+               tc_ = tc[1:]
+               if preSolution != None and not(eval(f"check_pre_solution_{problemId}(*tc_)")) :
+                  verdict = 'rejected by pre-cond'
+                  zzz.append(verdict)
+                  continue
+               retval = eval(f"program_{problemId}(*tc_)")
+               tc_.insert(0,retval)
+               verdict = eval(f"check_post_solution_{problemId}(*tc_)")
+               zzz.append((retval,verdict))
+            print(f"   prg-run test results:{zzz}")
+               
    print("** All seem to be good.")
 
 
@@ -93,9 +116,10 @@ def printField_InDataSet(data_file:str, id:str, idFieldName:str, fieldToPrint:st
 
 if __name__ == '__main__':
    dataset = data.ZEROSHOT_DATA
-   #ROOT = os.path.dirname(os.path.abspath(__file__))
+   ROOT = os.path.dirname(os.path.abspath(__file__))
    #dataset = os.path.join(ROOT, "..", "..", "llm4spiDatasets", "data", "x.json")
-   #dataset = os.path.join(ROOT, "..", "..", "llm4spiDatasets", "data", "simple-specs.json")
-   #checkPrePostSolutions_InDataSet(dataset)
+   dataset = os.path.join(ROOT, "..", "..", "llm4spiDatasets", "data", "simple-specs.json")
+   checkPrePostSolutions_InDataSet(dataset)
    #printPrograms_InDataSet(dataset, whichProblem="5")
-   printField_InDataSet("../../llm4spiDatasets/data/humaneval-reformatted.json","HumanEval/24","task_id","canonical_solution")
+   #printField_InDataSet("../../llm4spiDatasets/data/humaneval-reformatted.json","HumanEval/0","task_id","prompt")
+   #printField_InDataSet("../../llm4spiDatasets/data/humaneval-reformatted.json","HumanEval/0","task_id","prompt")

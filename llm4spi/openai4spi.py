@@ -15,6 +15,10 @@ from evaluation import evaluate_task_results
 from pythonSrcUtils import extractFunctionBody, extractPythonFunctionDef_fromMarkDownQuote, fix_indentation
 
 class PromptResponder:
+
+    def __init__(self) :
+        self.DEBUG = False
+
     """
     A template class that generically represents an LLM/AI that can respond to a prompt 
     to ask its completion.
@@ -85,16 +89,24 @@ def generate_results(
         evaluate_task_results(tasks,reportfile)
         results = [{
             "task_id": tasks[task]["task_id"],
+            "pre_condition_prompt" : tasks[task]["pre_condition_prompt"],
+            "pre_condition_raw_response": tasks[task]["pre_condition_raw_response"],
             "pre_condition_completion": tasks[task]["pre_condition_completion"],
-            "post_condition_completion": tasks[task]["post_condition_completion"],
             "pre_condition_evaluation": tasks[task]["pre_condition_evaluation"],
+            "post_condition_prompt" : tasks[task]["post_condition_prompt"],
+            "post_condition_raw_response": tasks[task]["post_condition_raw_response"],
+            "post_condition_completion": tasks[task]["post_condition_completion"],
             "post_condition_evaluation": tasks[task]["post_condition_evaluation"]
             } for task in tasks]
 
     else:
         results = [{
             "task_id": tasks[task]["task_id"],
+            "pre_condition_prompt" : tasks[task]["pre_condition_prompt"],
+            "pre_condition_raw_response": tasks[task]["pre_condition_raw_response"],
             "pre_condition_completion": tasks[task]["pre_condition_completion"],
+            "post_condition_prompt" : tasks[task]["post_condition_prompt"],
+            "post_condition_raw_response": tasks[task]["post_condition_raw_response"],
             "post_condition_completion": tasks[task]["post_condition_completion"]
             } for task in tasks]
     timeSpentAnalysis = time.time() - time2
@@ -143,20 +155,27 @@ def generate_task_result(
     """
     pre_condition_prompt     = create_prompt(task, condition_type="pre", prompt_type=prompt_type)
     pre_condition_completion = None
+    task["pre_condition_prompt"] = pre_condition_prompt
+    task["pre_condition_raw_response"] = None
     if pre_condition_prompt != None:
         pre_condition_completion = AI.completeIt(pre_condition_prompt)
+        task["pre_condition_raw_response"] = pre_condition_completion
         preCondHeader = task["pre_condition_incomplete"]
         pre_condition_completion = fix_completionString(preCondHeader,pre_condition_completion)
     
     post_condition_prompt     = create_prompt(task, condition_type="post", prompt_type=prompt_type)
     post_condition_completion = None
+    task["post_condition_prompt"] = post_condition_prompt
+    task["post_condition_raw_response"] = None
     if post_condition_prompt != None:
         post_condition_completion = AI.completeIt(post_condition_prompt)
+        task["post_condition_raw_response"] = post_condition_completion
         postCondHeader = task["post_condition_incomplete"]
         post_condition_completion = fix_completionString(postCondHeader,post_condition_completion)
     
     task["pre_condition_completion"] = pre_condition_completion
     task["post_condition_completion"] = post_condition_completion
+    
     return task
 
 class MyOpenAIClient(PromptResponder):
@@ -164,10 +183,12 @@ class MyOpenAIClient(PromptResponder):
     An instance of prompt-responder that uses openAI LLM as the backend model.
     """
     def __init__(self,client: OpenAI, modelId:str):
+        PromptResponder.__init__(self)
         self.client = client
-        self.model = modelId
+        self.model = modelId 
     
     def completeIt(self, prompt:str) -> str:
+        if self.DEBUG: print(">>> PROMPT:\n" + prompt)
         completion = self.client.chat.completions.create(
             #model = "gpt-3.5-turbo",
             model = self.model,
@@ -178,7 +199,9 @@ class MyOpenAIClient(PromptResponder):
                 }
                 ]
             )
-        return completion.choices[0].message.content
+        reponse = completion.choices[0].message.content
+        if self.DEBUG: print(">>> raw response:\n" + reponse)
+        return reponse
 
 
 
@@ -190,18 +213,19 @@ if __name__ == '__main__':
     #modelId ="gpt-4-turbo"
     #modelId ="o1-mini"  --> still in Beta, we have no access!
     myAIclient = MyOpenAIClient(openAIclient,modelId)
-
+    myAIclient.DEBUG = True
+    
     dataset = ZEROSHOT_DATA
     ROOT = os.path.dirname(os.path.abspath(__file__))
-    dataset = os.path.join(ROOT, "..", "..", "llm4spiDatasets", "data", "x.json")
-    #dataset = os.path.join(ROOT, "..", "..", "llm4spiDatasets", "data", "simple-specs.json")
+    #dataset = os.path.join(ROOT, "..", "..", "llm4spiDatasets", "data", "x.json")
+    dataset = os.path.join(ROOT, "..", "..", "llm4spiDatasets", "data", "simple-specs.json")
 
     generate_results(myAIclient,
                      dataset, 
-                     specificProblem = "HE24",
+                     specificProblem = "arith_8",
                      experimentName = "gpt3.5",     
                      enableEvaluation=True, 
-                     prompt_type="zshot")
+                     prompt_type="usePredDesc")
     
-    #generate_results(client, dataset, specificProblem = None, experimentName="gpt3.5", enableEvaluation=True, prompt_type="cot", )
+ 
     
