@@ -214,7 +214,7 @@ if __name__ == '__main__':
     #modelId ="o1-mini"  --> still in Beta, we have no access!
     myAIclient = MyOpenAIClient(openAIclient,modelId)
     myAIclient.DEBUG = True
-    
+
     dataset = ZEROSHOT_DATA
     ROOT = os.path.dirname(os.path.abspath(__file__))
     #dataset = os.path.join(ROOT, "..", "..", "llm4spiDatasets", "data", "x.json")
@@ -222,10 +222,11 @@ if __name__ == '__main__':
 
     generate_results(myAIclient,
                      dataset, 
-                     specificProblem = "arith_8",
+                     specificProblem = None,
                      experimentName = "gpt3.5",     
                      enableEvaluation=True, 
-                     prompt_type="usePredDesc")
+                     prompt_type="cot1"
+                     )
     
  
     

@@ -114,6 +114,7 @@ def evaluate_task_result(task: Dict, condition: str):
     except:
         print(f">>>>>> The def of completion-proposal crashed!")
         task[f"{condition}_condition_evaluation"] = "failed"
+        return
     
     # running the test-cases on the AI's function; this may fail too:
     if (condition == "pre"):
