@@ -222,10 +222,10 @@ if __name__ == '__main__':
 
     generate_results(myAIclient,
                      dataset, 
-                     specificProblem = None,
+                     specificProblem = "logic_13",
                      experimentName = "gpt3.5",     
                      enableEvaluation=True, 
-                     prompt_type="cot1"
+                     prompt_type="cot2"
                      )
     
  
