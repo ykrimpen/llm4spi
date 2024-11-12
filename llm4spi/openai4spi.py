@@ -162,7 +162,7 @@ def generate_task_result(
         task["pre_condition_raw_response"] = pre_condition_completion
         preCondHeader = task["pre_condition_incomplete"]
         pre_condition_completion = fix_completionString(preCondHeader,pre_condition_completion)
-    
+
     post_condition_prompt     = create_prompt(task, condition_type="post", prompt_type=prompt_type)
     post_condition_completion = None
     task["post_condition_prompt"] = post_condition_prompt
@@ -222,10 +222,10 @@ if __name__ == '__main__':
 
     generate_results(myAIclient,
                      dataset, 
-                     specificProblem = "logic_13",
+                     specificProblem = None,
                      experimentName = "gpt3.5",     
                      enableEvaluation=True, 
-                     prompt_type="cot2"
+                     prompt_type="xcot2"
                      )
     
  
