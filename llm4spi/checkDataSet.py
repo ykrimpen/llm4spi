@@ -95,7 +95,7 @@ def checkPrePostSolutions_InDataSet(data_file: str) -> None :
                   verdict = 'rejected by pre-cond'
                   zzz.append(verdict)
                   continue
-               retval = eval(f"program_{problemId}(*tc_)")
+               retval = eval(f"Pr_{problemId}(*tc_)")
                tc_.insert(0,retval)
                verdict = eval(f"check_post_solution_{problemId}(*tc_)")
                zzz.append((retval,verdict))

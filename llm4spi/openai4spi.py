@@ -225,6 +225,7 @@ if __name__ == '__main__':
                      specificProblem = None,
                      experimentName = "gpt3.5",     
                      enableEvaluation=True, 
+                     #prompt_type="usePrgDesc"
                      prompt_type="xcot2"
                      )
     

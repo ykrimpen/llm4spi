@@ -53,18 +53,18 @@ def create_prompt(task: Dict, condition_type: str, prompt_type: str) -> str:
         z = condition_incomplete.split('(')[0].strip()
          # remove "def"
         poscFunctionName = z.split()[1].strip()
-        prompt = f"Consider a Python program {poscFunctionName} with header:\n\n{condition_incomplete}\n\n{condition}\n\nINSTRUCTION: please complete the code. Only give the code. Do not explain."        
+        prompt = f"Consider a Python function {poscFunctionName} with header:\n\n{condition_incomplete}\n\nThe function checks if the following condition is true. {condition}\n\nINSTRUCTION: please complete the code. Only give the code. Do not explain."        
 
     elif prompt_type == "xcot1":
         z = condition_incomplete.split('(')[0].strip()
          # remove "def"
         poscFunctionName = z.split()[1].strip()
-        prompt = f"Consider a Python program {poscFunctionName} with the header:\n\n{condition_incomplete}\n\n{condition}\n\nINSTRUCTION:\n(1) reformulate the program's description as clauses, where each clause is of the form \"if condition1 then condition2\".\n(2) translate the clauses to Python code to complete the code of {poscFunctionName}. Only give the code. Do not explain."        
+        prompt = f"Consider a Python function {poscFunctionName} with the header:\n\n{condition_incomplete}\n\nThe function checks if the following condition is true. {condition}\n\nINSTRUCTION:\n(1) reformulate the mentioned condition as clauses, where each clause is of the form \"if condition1 then condition2\".\n(2) translate the clauses to Python code to complete the code of {poscFunctionName}."        
 
     elif prompt_type == "xcot2":
         z = condition_incomplete.split('(')[0].strip()
          # remove "def"
         poscFunctionName = z.split()[1].strip()
-        prompt = f"Consider a Python program {poscFunctionName} with the header:\n\n{condition_incomplete}.\n\n{condition}\n\nnINSTRUCTION:\n(1) reformulate the program's description as clauses, where each clause is of the form \"if condition1 then condition2\".\n(2) Then, reformulate each clause as implicative Horn clauses of the form \"c1 and c2 ... implies ck\".\n(3) Finally, translate the Horn clauses to Python code to complete the code of {poscFunctionName}. \nOnly give the code. Do not explain."        
+        prompt = f"Consider a Python function {poscFunctionName} with the header:\n\n{condition_incomplete}.\n\nThe function checks if the following condition is true. {condition}\n\nnINSTRUCTION:\n(1) reformulate the mentioned condition as clauses, where each clause is of the form \"if condition1 then condition2\".\n(2) Then, reformulate each clause as implicative Horn clauses of the form \"c1 and c2 ... implies ck\".\n(3) Finally, translate the Horn clauses to Python code to complete the code of {poscFunctionName}."        
 
     return prompt  
