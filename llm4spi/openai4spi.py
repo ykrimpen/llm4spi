@@ -217,16 +217,16 @@ if __name__ == '__main__':
 
     dataset = ZEROSHOT_DATA
     ROOT = os.path.dirname(os.path.abspath(__file__))
-    #dataset = os.path.join(ROOT, "..", "..", "llm4spiDatasets", "data", "x.json")
-    dataset = os.path.join(ROOT, "..", "..", "llm4spiDatasets", "data", "simple-specs.json")
+    dataset = os.path.join(ROOT, "..", "..", "llm4spiDatasets", "data", "x.json")
+    #dataset = os.path.join(ROOT, "..", "..", "llm4spiDatasets", "data", "simple-specs.json")
 
     generate_results(myAIclient,
                      dataset, 
-                     specificProblem = None,
+                     specificProblem = "HE24",
                      experimentName = "gpt3.5",     
                      enableEvaluation=True, 
-                     #prompt_type="usePrgDesc"
-                     prompt_type="xcot2"
+                     prompt_type="usePredDesc"
+                     #prompt_type="xcot2"
                      )
     
  

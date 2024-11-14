@@ -31,9 +31,9 @@ def create_prompt(task: Dict, condition_type: str, prompt_type: str) -> str:
     if prompt_type == 'usePrgDesc' :
         if not('program' in task) : return None 
         if condition_type == 'post':
-            prompt = f"Consider a program {programName}. {programDesc}\n\nINSTRUCTION:\n(1) Extract the post-condition of {programName}. \n(2) Give this post-condtion as a Python function with the header shown below, where the parameter {retvalParamName} represents {programName}'s return value.\nOnly give the function. Do not explain.\n\n{condition_incomplete}"
+            prompt = f"Consider a program {programName}. {programDesc}\n\nINSTRUCTION:\n(1) Extract the post-condition of {programName} (in English). \n(2) Then, code this post-condtion as a Python function with the header shown below, where the parameter {retvalParamName} represents {programName}'s return value.\nDo not explain.\n\n{condition_incomplete}"
         else:
-            prompt = f"Consider a program {programName}. {programDesc}\n\nINSTRUCTION:\n(1) Extract the pre-condition of {programName}. \n(2) Give this pre-condtion as a Python function with the header shown below.\nOnly give the function. Do not explain.\n\n{condition_incomplete}"
+            prompt = f"Consider a program {programName}. {programDesc}\n\nINSTRUCTION:\n(1) Extract the pre-condition of {programName} (in English). \n(2) Then, code this pre-condtion as a Python function with the header shown below.\n Do not explain.\n\n{condition_incomplete}"
 
     elif prompt_type == 'cot1' :
         if not('program' in task) : return None 
@@ -53,7 +53,7 @@ def create_prompt(task: Dict, condition_type: str, prompt_type: str) -> str:
         z = condition_incomplete.split('(')[0].strip()
          # remove "def"
         poscFunctionName = z.split()[1].strip()
-        prompt = f"Consider a Python function {poscFunctionName} with header:\n\n{condition_incomplete}\n\nThe function checks if the following condition is true. {condition}\n\nINSTRUCTION: please complete the code. Only give the code. Do not explain."        
+        prompt = f"Consider a Python function {poscFunctionName} with header:\n\n{condition_incomplete}\n\nThe function checks if the following condition holds. {condition}\n\nINSTRUCTION: please complete the code. Only give the code. Do not explain."        
 
     elif prompt_type == "xcot1":
         z = condition_incomplete.split('(')[0].strip()
