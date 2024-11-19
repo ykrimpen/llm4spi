@@ -113,6 +113,7 @@ def evaluate_task_result(task: Dict, condition: str):
         exec(complete_function,globals())
     except:
         print(f">>>>>> The def of completion-proposal crashed!")
+        print(f">>>>>> src:\n {complete_function}")
         task[f"{condition}_condition_evaluation"] = "failed"
         return
     

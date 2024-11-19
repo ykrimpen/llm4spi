@@ -9,3 +9,10 @@ You can use a [Docker-image with GPT4All installed](https://hub.docker.com/r/mor
 * NVIDIA Container Toolkit installed
 * Vulkan SDK installed
 * GPT4All installed (as a Python package)
+
+### Other notes
+
+Interesting case with HE99 pre-cond:
+
+(1) The string s represents a number. --> GPT 3.5 has a problem in translating this correctly
+(2) The string s must represent a number. --> GPT 3.5 suddenly can translate this correctly

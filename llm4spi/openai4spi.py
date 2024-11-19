@@ -222,11 +222,11 @@ if __name__ == '__main__':
 
     generate_results(myAIclient,
                      dataset, 
-                     specificProblem = "HE24",
+                     specificProblem = "HE43",
                      experimentName = "gpt3.5",     
                      enableEvaluation=True, 
-                     prompt_type="usePredDesc"
-                     #prompt_type="xcot2"
+                     prompt_type="usePrgDesc"
+                     #prompt_type="cot2"
                      )
     
  

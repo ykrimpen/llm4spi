@@ -12,7 +12,7 @@ def parseProblems(dataSetDir:str) -> Dict[str, Dict]:
     result is a dictionary D. For each problem P in the directory, D
     maps P-id to another dictionary U that contains P's components.
     """
-    problemFolders = [ f for f in os.listdir(dataSetDir) if not f.startswith('.') ]
+    problemFolders = [ f for f in os.listdir(dataSetDir) if not f.startswith('.') and not f.endswith('.md') ]
     problemFolders = sorted(problemFolders)
     problems = [ parseProblem(os.path.join(dataSetDir,P, P + ".py" )) for P in problemFolders ]
     result = { P["task_id"] : P for P in problems}
