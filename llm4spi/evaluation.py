@@ -6,9 +6,22 @@ from collections import Counter
 
 def compare_results(expected: list, predicted: list) -> str:
     """
-    Returns acception state after comparison of the expected results and the actual predicted results.
-    Note: None from prediction will be interpreted as 'making no prediction', and
+    Returns a judgement after comparising the predicted results (results from running the function produced
+    by AI) with of the expected results.
+    Note: None as a prediction will be interpreted as 'making no prediction', and
           will be excluded from judgement.
+          However, if all predications are None, a 'failed' judgement is returned.
+
+    Judgement:
+    (1) 'accepted' if all predictions (excluding None-values) match the expected values.
+    (2) 'failed' if AI solution crashed, or it produces a value that is not even a boolean,
+        or if all predications are None.
+    (3) 'too_weak' if for every not-None prediction p and the corresponding expected value e
+                   we have e ==> p
+    (4) 'too_strong' if for every not-None prediction p and the corresponding expected value e
+                   we have p ==> e
+    (5) 'rejected' if none of the above is the case. 
+
     """
     
     # filter first the None-predictions
@@ -64,19 +77,28 @@ def try_check_post(test_case, task_id):
 
 def evaluate_task_result(task: Dict, condition: str):
     """
-    Builds the solution and predicted pre or post condition function definition of a single task,
-    based on the condition argument,
-    evaluates the predicted function's performance,
-    and alters the evaluation item of the task dictionary.
+    Given a single task, described in a dictionary, this function builds the solution 
+    and predicted pre or post condition function-definitions that corresponds
+    to the task. E.g. it constructs definitions 'def f1_solution...' and 'def f1_predicted...'.
+
+    The condition argument is either 'pre' or 'post'.
+
+    After the defs are constructred, the function evaluates the predicted 
+    function's performance.
+
+    The evaluation results are added/updated as entries in the given
+    task dictionary (side-effect).
     """
 
     # we first handle the case when the task pre- or post-condition
     # does not exists:
     if not (f"{condition}_condition" in task) : 
+        task[f"{condition}_condition_baseEvaluation"] = None
         task[f"{condition}_condition_evaluation"] = None
         return
     conditionDesc = task[f"{condition}_condition"]
     if conditionDesc==None or conditionDesc=="":
+        task[f"{condition}_condition_baseEvaluation"] = None
         task[f"{condition}_condition_evaluation"] = None
         return
 
@@ -92,18 +114,33 @@ def evaluate_task_result(task: Dict, condition: str):
         print(solution_function)
         return
 
-    test_cases = eval(task[f"{condition}_condition_tests"])
+    # if the test-cases are marked with a split token, this indicates that
+    # they consists of two groups: base-group and validation-group.
+    # We separate them:
+    splitToken = '==='
+    test_cases0 = eval(task[f"{condition}_condition_tests"])
+    if splitToken in test_cases0:
+        split = test_cases0.index(splitToken)
+        test_casesBase = test_cases0[:split]
+        test_casesValidation = test_cases0[split+1 :]
+    else:
+        test_casesBase = test_cases0
+        test_casesValidation = []
+    test_cases = test_casesBase + test_casesValidation
 
     # executing the test-cases on the solution-function, also not expecting these
     # to fail:
     if (condition == "pre"):
-        solution_results = [eval(f"check_pre_solution_{task["task_id"]}(*test_case)") for test_case in test_cases]
+        solution_resultsBase = [eval(f"check_pre_solution_{task["task_id"]}(*test_case)") for test_case in test_casesBase]
+        solution_resultsValidation = [eval(f"check_pre_solution_{task["task_id"]}(*test_case)") for test_case in test_casesValidation]
     else:
-        solution_results = [eval(f"check_post_solution_{task["task_id"]}(*test_case)") for test_case in test_cases]
+        solution_resultsBase = [eval(f"check_post_solution_{task["task_id"]}(*test_case)") for test_case in test_casesBase]
+        solution_resultsValidation = [eval(f"check_post_solution_{task["task_id"]}(*test_case)") for test_case in test_casesValidation]
 
     print(f"task: {task["task_id"]}, condition: {condition}")
     print(solution_function)
-    print(solution_results)
+    print(f"Base: {solution_resultsBase}")
+    print(f"Validation: {solution_resultsValidation}")
 
     indented_function_body = textwrap.indent(task[f"{condition}_condition_completion"],'    ')
     complete_function = task[f"{condition}_condition_incomplete"] + "\n" + indented_function_body
@@ -119,36 +156,61 @@ def evaluate_task_result(task: Dict, condition: str):
     
     # running the test-cases on the AI's function; this may fail too:
     if (condition == "pre"):
-        completion_results = [try_check_pre(test_case, task["task_id"]) for test_case in test_cases]
+        completion_resultsBase = [try_check_pre(test_case, task["task_id"]) for test_case in test_casesBase]
+        completion_resultsValidation = [try_check_pre(test_case, task["task_id"]) for test_case in test_casesValidation]
     else:
-        completion_results = [try_check_post(test_case, task["task_id"]) for test_case in test_cases]
+        completion_resultsBase = [try_check_post(test_case, task["task_id"]) for test_case in test_casesBase]
+        completion_resultsValidation = [try_check_post(test_case, task["task_id"]) for test_case in test_casesValidation]
 
     print(complete_function)
-    print(completion_results)
+    print(f"Base: {completion_resultsBase}")
+    print(f"Validation: {completion_resultsValidation}")
 
-    task[f"{condition}_condition_evaluation"] = compare_results(solution_results, completion_results)
+    rawBaseEvalResult = compare_results(solution_resultsBase, completion_resultsBase)
+    task[f"{condition}_condition_baseEvaluation"] = 'accepted' if rawBaseEvalResult == 'accepted' else 'NOT accepted'
+    if test_casesValidation == []:   
+        task[f"{condition}_condition_evaluation"] = rawBaseEvalResult
+    else:
+        task[f"{condition}_condition_evaluation"] = compare_results(solution_resultsBase   + solution_resultsValidation, 
+                                                                    completion_resultsBase + completion_resultsValidation)
 
 
 def print_acceptance_rate(tasks: Dict[str,Dict]):
     
+    pre_condition_baseEvaluations = [ task["pre_condition_baseEvaluation"] for task in tasks.values()]
     pre_condition_evaluations = [ task["pre_condition_evaluation"] for task in tasks.values()]
+    pre_condition_baseEvaluations = [ r for r in pre_condition_baseEvaluations if r != None]
     pre_condition_evaluations = [ r for r in pre_condition_evaluations if r != None]
+
+    post_condition_baseEvaluations = [ task["post_condition_baseEvaluation"] for task in tasks.values()]
     post_condition_evaluations = [ task["post_condition_evaluation"] for task in tasks.values()]
+    post_condition_baseEvaluations = [ r for r in post_condition_baseEvaluations if r != None]
     post_condition_evaluations = [ r for r in post_condition_evaluations if r != None]
     
+    preCounterB = Counter(pre_condition_baseEvaluations)
     preCounter = Counter(pre_condition_evaluations)
+    postCounterB = Counter(post_condition_baseEvaluations)
     postCounter = Counter(post_condition_evaluations)
 
     print("** Evaluation result:")
+    if preCounterB.total() > 0 :
+        tot = preCounterB.total()
+        print(f"   #pre-cond checked with base-tests = {tot}")
+        for (state, count) in preCounterB.items():
+            print(f"   {state}: {count} ({count/tot*100}%)")
     if preCounter.total() > 0 :
         tot = preCounter.total()
-        print(f"   #pre-cond = {tot}")
+        print(f"   #pre-cond checked with all-tests = {tot}")
         for (state, count) in preCounter.items():
             print(f"   {state}: {count} ({count/tot*100}%)")
-
+    if postCounterB.total() > 0 :
+        tot = postCounterB.total()
+        print(f"   #post-cond checked with base-tests = {tot}")
+        for (state, count) in postCounterB.items():
+            print(f"   {state}: {count} ({count/tot*100}%)")
     if postCounter.total() > 0 :
         tot = postCounter.total()
-        print(f"   #post-cond = {tot}")
+        print(f"   #post-cond checked with all-tests = {tot}")
         for (state, count) in postCounter.items():
             print(f"   {state}: {count} ({count/tot*100}%)")
 
@@ -157,12 +219,18 @@ def write_evaluation_report(tasks: Dict[str,Dict], reportfile:str):
     with open(reportfile,'w') as f:
         for tId in tasks:
             task = tasks[tId]
+            precondBaseEval = task["pre_condition_baseEvaluation"]
+            if precondBaseEval != None:
+                f.write(f"{tId}-pre (base tests): {precondBaseEval}\n")
             precondEval = task["pre_condition_evaluation"]
             if precondEval != None:
-                f.write(f"{tId}-pre : {precondEval}\n")
+                f.write(f"{tId}-pre (all tests): {precondEval}\n")
+            postcondBaseEval =  task["post_condition_baseEvaluation"]
+            if postcondBaseEval != None:
+                f.write(f"{tId}-post (base tests): {postcondBaseEval}\n")
             postcondEval =  task["post_condition_evaluation"]
             if postcondEval != None:
-                f.write(f"{tId}-post : {postcondEval}\n")
+                f.write(f"{tId}-post (all tests): {postcondEval}\n")
 
 def evaluate_task_results(tasks: Dict[str,Dict], reportfile:str) -> None:
     for task in tasks:

@@ -58,14 +58,16 @@ def generate_results(
     along with tests for assessing how good the answer from the AI. 
 
     For each pre- or post-condition R produced by the AI, the following evaluation result is produced:
-       * failed: if R crashes, or if it does not even return a boolean value.
-       * accepted: for every test-input x (provided in the dataset), R(x) = R0(x), where R0 is the provided
-                 reference solution.
-       * too strong: if R is not accepted, and for every test input x, R(x) is either the same as R0(x), 
-                or R(x) implies R0(x).
-       * too weak:   if R is not accepted, and for every test input x, R(x) is either the same as R0(x), 
-                or R(x) is implied by R0(x).
-       * rejeected: if R is not accepted, nor too strong, nor too weak.
+       * (1) failed: if R crashes, or if it does not even return a boolean value, or if R
+                     returns None on all test-cases.
+       * (2) accepted: for every test-input x (provided in the dataset), R(x) = R0(x), where R0 is the provided
+                 reference solution. Test inputs for which R(x) gives None is interpreted as 'i don't know' and
+                 are ignored from the consideration.
+       * (3) too strong: if R is not accepted, and for every test input x, for which R(x) is not None we have
+                R(x) implies R0(x).
+       * (4) too weak:   if R is not accepted, and for every test input x, for which R(x) is not None we have
+                R0(x) implies R(x).
+       * (5) rejected: none of the above judgement is the case.
 
     An evaluation report, along with the produced solutions from the AI are saved in files in /results.
     """
@@ -222,10 +224,10 @@ if __name__ == '__main__':
 
     generate_results(myAIclient,
                      dataset, 
-                     specificProblem = "HE43",
+                     specificProblem = "HE13",
                      experimentName = "gpt3.5",     
                      enableEvaluation=True, 
-                     prompt_type="usePrgDesc"
+                     prompt_type="usePredDesc"
                      #prompt_type="cot2"
                      )
     
