@@ -2,20 +2,7 @@ from typing import Dict
 import textwrap
 import data
 from collections import Counter
-
-#
-# Test-cases of each task are typically split into a number of groups/test-suites/
-# For example, they could be grouped in two suites. The first consists of
-# base-tests, the rest are additional tests for validation. We could then check
-# if e.g. a post-condition proposed by AI is accepted by the best-tests, and
-# look at how it performs towards the whole suite (base + validation tests).
-#
-# It is also possible that the test-cases are grouped into three groups: base1,
-# base2, and validation. When the variable below is enabled then we use both
-# base1 and base2 as the base-tests (so, stronger ). 
-# Else, only base1 will be used as the base-tests.
-#
-CONFIG_USE_SECOND_TESTSUITE_AS_BASETESTS_TOO = True
+import myconfig
 
 def compare_results(expected: list, predicted: list) -> str:
     """
@@ -154,7 +141,7 @@ def evaluate_task_result(task: Dict, condition: str):
     elif len(test_suites) == 2:
         test_casesValidation = test_suites[1]
     else: # then we have at least three suites
-        if CONFIG_USE_SECOND_TESTSUITE_AS_BASETESTS_TOO:
+        if myconfig.CONFIG_USE_SECOND_TESTSUITE_AS_BASETESTS_TOO:
             test_casesBase.extend(test_suites[1])
             test_casesValidation = []
             for suite in test_suites[2:] : test_casesValidation.extend(suite)
