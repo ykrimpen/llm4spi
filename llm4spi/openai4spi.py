@@ -224,7 +224,7 @@ if __name__ == '__main__':
 
     generate_results(myAIclient,
                      dataset, 
-                     specificProblem = "HE13",
+                     specificProblem = "HE71",
                      experimentName = "gpt3.5",     
                      enableEvaluation=True, 
                      prompt_type="usePredDesc"

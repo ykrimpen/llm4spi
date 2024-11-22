@@ -3,6 +3,19 @@ import textwrap
 import data
 from collections import Counter
 
+#
+# Test-cases of each task are typically split into a number of groups/test-suites/
+# For example, they could be grouped in two suites. The first consists of
+# base-tests, the rest are additional tests for validation. We could then check
+# if e.g. a post-condition proposed by AI is accepted by the best-tests, and
+# look at how it performs towards the whole suite (base + validation tests).
+#
+# It is also possible that the test-cases are grouped into three groups: base1,
+# base2, and validation. When the variable below is enabled then we use both
+# base1 and base2 as the base-tests (so, stronger ). 
+# Else, only base1 will be used as the base-tests.
+#
+CONFIG_USE_SECOND_TESTSUITE_AS_BASETESTS_TOO = True
 
 def compare_results(expected: list, predicted: list) -> str:
     """
@@ -75,6 +88,21 @@ def try_check_post(test_case, task_id):
     return result
 
 
+def listSplit(s:list, sep): 
+    """
+    split the list s into segments which are separated by sep
+    """
+    segments = []
+    z = []
+    for x in s:
+        if x==sep:
+            segments.append(z)
+            z = []
+        else:
+            z.append(x)
+    segments.append(z)
+    return segments
+
 def evaluate_task_result(task: Dict, condition: str):
     """
     Given a single task, described in a dictionary, this function builds the solution 
@@ -119,15 +147,21 @@ def evaluate_task_result(task: Dict, condition: str):
     # We separate them:
     splitToken = '==='
     test_cases0 = eval(task[f"{condition}_condition_tests"])
-    if splitToken in test_cases0:
-        split = test_cases0.index(splitToken)
-        test_casesBase = test_cases0[:split]
-        test_casesValidation = test_cases0[split+1 :]
-    else:
-        test_casesBase = test_cases0
+    test_suites = listSplit(test_cases0,splitToken)
+    test_casesBase = test_suites[0]
+    if len(test_suites) == 1:
         test_casesValidation = []
-    test_cases = test_casesBase + test_casesValidation
-
+    elif len(test_suites) == 2:
+        test_casesValidation = test_suites[1]
+    else: # then we have at least three suites
+        if CONFIG_USE_SECOND_TESTSUITE_AS_BASETESTS_TOO:
+            test_casesBase.extend(test_suites[1])
+            test_casesValidation = []
+            for suite in test_suites[2:] : test_casesValidation.extend(suite)
+        else:
+            test_casesValidation = []
+            for suite in test_suites[1:] : test_casesValidation.extend(suite)
+    
     # executing the test-cases on the solution-function, also not expecting these
     # to fail:
     if (condition == "pre"):
@@ -151,7 +185,8 @@ def evaluate_task_result(task: Dict, condition: str):
     except:
         print(f">>>>>> The def of completion-proposal crashed!")
         print(f">>>>>> src:\n {complete_function}")
-        task[f"{condition}_condition_evaluation"] = "failed"
+        task[f"{condition}_condition_baseEvaluation"] = 'NOT accepted'
+        task[f"{condition}_condition_evaluation"] = 'failed'
         return
     
     # running the test-cases on the AI's function; this may fail too:
