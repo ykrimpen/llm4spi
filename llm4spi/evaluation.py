@@ -1,3 +1,8 @@
+#
+# Contain functions for performing the LLM evaluation towards the pre-/post-conditions
+# tasks.
+#
+
 from typing import Dict
 import textwrap
 import data
