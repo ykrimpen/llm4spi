@@ -35,6 +35,7 @@ def checkPrePostSolutions_InDataSet(data_file: str) -> None :
    """
    problems = data.read_problems(data_file)
    print(f"** Checking {len(problems)} problems...")
+   all_ok = True
    for p in problems:
       P = problems[p]
       problemId = p
@@ -53,10 +54,10 @@ def checkPrePostSolutions_InDataSet(data_file: str) -> None :
             print(f">>> OUCH pre-cond problem {p} has a problem.")
             print(preSolution)
          try:
-            test_cases = eval(P["pre_condition_tests"]) 
+            test_cases = [ tc for tc in eval(P["pre_condition_tests"]) if tc != "===" ]
             #print(test_cases)
             solution_results = [eval(f"check_pre_solution_{problemId}(*test_case)") for test_case in test_cases]
-            print(f"   precond test results:{solution_results}")
+            print(f"   precond tests results:{solution_results}")
          except:
             print(f">>> OUCH pre-cond problem {p} has a crashing test")
             raise Exception("OUCH")
@@ -73,9 +74,9 @@ def checkPrePostSolutions_InDataSet(data_file: str) -> None :
             print(postSolution)
             raise Exception("OUCH")
          try:
-            test_cases = eval(P["post_condition_tests"])
+            test_cases = [tc for tc in eval(P["post_condition_tests"]) if tc != "===" ]
             solution_results = [eval(f"check_post_solution_{problemId}(*test_case)") for test_case in test_cases]
-            print(f"   postcond test results:{solution_results}")
+            print(f"   postcond tests results:{solution_results}")
          except:
             print(f">>> OUCH post-cond problem {p} has a crashing test")
             raise Exception("OUCH")
@@ -99,9 +100,13 @@ def checkPrePostSolutions_InDataSet(data_file: str) -> None :
                tc_.insert(0,retval)
                verdict = eval(f"check_post_solution_{problemId}(*tc_)")
                zzz.append((retval,verdict))
-            print(f"   prg-run test results:{zzz}")
+            print(f"   prg-run tests results:{zzz}")
+            ok = all([ r[1] for r in zzz])
+            print(f"   prg-run tests all-pass: {ok}")
+            all_ok = all_ok and ok
                
-   print("** All seem to be good.")
+   print( "** Done running all tests...")
+   print(f"** All prg-tests passed: {all_ok}")
 
 
 def printField_InDataSet(data_file:str, id:str, idFieldName:str, fieldToPrint:str) -> None :
