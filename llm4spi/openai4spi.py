@@ -11,7 +11,7 @@ import time
 
 from data import ZEROSHOT_DATA, read_problems, write_jsonl
 from prompting import create_prompt
-from evaluation import evaluate_task_results
+from evaluation import evaluate_tasks_results
 from pythonSrcUtils import extractFunctionBody, extractPythonFunctionDef_fromMarkDownQuote, fix_indentation
 
 class PromptResponder:
@@ -23,9 +23,12 @@ class PromptResponder:
     A template class that generically represents an LLM/AI that can respond to a prompt 
     to ask its completion.
     """
-    def completeIt(self, prompt:str) -> str:
+    def completeIt(self, multipleAnswer:int, prompt:str) -> list[str]:
         """
-        Complete the given prompt. Return the answer.
+        Complete the given prompt. Return the answer. As some LLMs can be configured to
+        generate multiple answers to the same prompt, the parameter multipleAnswer can be used
+        to specify how many asnwers we want from the AI. If its one, the just one answer is 
+        expected from the AI. If it is e.g. 3 then three answers are expected. 
         """
         return None
 
@@ -35,6 +38,7 @@ def generate_results(
         specificProblem:str,
         experimentName:str,
         enableEvaluation: bool,
+        allowMultipleAnswers: int,
         prompt_type: str        
         ) -> None:
     """
@@ -80,7 +84,7 @@ def generate_results(
 
     time1 = time.time()
     for task in tasks:
-        generate_task_result(AI, tasks[task], prompt_type=prompt_type)
+        generate_task_result(AI, tasks[task], allowMultipleAnswers, prompt_type=prompt_type)
     timeSpentAI = time.time() - time1
 
     current_date = (datetime.now()).strftime("%d_%m_%Y_%H_%M_%S")
@@ -88,16 +92,18 @@ def generate_results(
     time2 = time.time()
     if enableEvaluation:
         reportfile = f"results/{experimentName}_evaluation_{prompt_type}_{current_date}.txt"
-        evaluate_task_results(tasks,reportfile)
+        evaluate_tasks_results(tasks,reportfile)
         results = [{
             "task_id": tasks[task]["task_id"],
             "pre_condition_prompt" : tasks[task]["pre_condition_prompt"],
-            "pre_condition_raw_response": tasks[task]["pre_condition_raw_response"],
-            "pre_condition_completion": tasks[task]["pre_condition_completion"],
+            "pre_condition_raw_responses": tasks[task]["pre_condition_raw_responses"],
+            "pre_condition_completions": tasks[task]["pre_condition_completions"],
+            "pre_condition_evaluations": tasks[task]["pre_condition_evaluations"],
             "pre_condition_evaluation": tasks[task]["pre_condition_evaluation"],
             "post_condition_prompt" : tasks[task]["post_condition_prompt"],
-            "post_condition_raw_response": tasks[task]["post_condition_raw_response"],
-            "post_condition_completion": tasks[task]["post_condition_completion"],
+            "post_condition_raw_responses": tasks[task]["post_condition_raw_responses"],
+            "post_condition_completions": tasks[task]["post_condition_completions"],
+            "post_condition_evaluations": tasks[task]["post_condition_evaluations"],
             "post_condition_evaluation": tasks[task]["post_condition_evaluation"]
             } for task in tasks]
 
@@ -105,11 +111,11 @@ def generate_results(
         results = [{
             "task_id": tasks[task]["task_id"],
             "pre_condition_prompt" : tasks[task]["pre_condition_prompt"],
-            "pre_condition_raw_response": tasks[task]["pre_condition_raw_response"],
-            "pre_condition_completion": tasks[task]["pre_condition_completion"],
+            "pre_condition_raw_responses": tasks[task]["pre_condition_raw_responses"],
+            "pre_condition_completions": tasks[task]["pre_condition_completions"],
             "post_condition_prompt" : tasks[task]["post_condition_prompt"],
-            "post_condition_raw_response": tasks[task]["post_condition_raw_response"],
-            "post_condition_completion": tasks[task]["post_condition_completion"]
+            "post_condition_raw_responses": tasks[task]["post_condition_raw_responses"],
+            "post_condition_completions": tasks[task]["post_condition_completions"]
             } for task in tasks]
     timeSpentAnalysis = time.time() - time2
 
@@ -143,6 +149,7 @@ def fix_completionString(header:str, completion:str) -> str :
 def generate_task_result(
         AI: PromptResponder,
         task: Dict,
+        allowMultipleAnswers: int,
         prompt_type: str) -> Dict:
     """
     This function takes the desciption of a task/problem, represented as a dictionary.
@@ -155,29 +162,28 @@ def generate_task_result(
 
     The creation of the prompt is coded in the module Prompting. 
     """
-    pre_condition_prompt     = create_prompt(task, condition_type="pre", prompt_type=prompt_type)
-    pre_condition_completion = None
+    pre_condition_prompt = create_prompt(task, condition_type="pre", prompt_type=prompt_type)
     task["pre_condition_prompt"] = pre_condition_prompt
-    task["pre_condition_raw_response"] = None
+    task["pre_condition_raw_responses"] = None
+    task["pre_condition_completions"]   = None
     if pre_condition_prompt != None:
-        pre_condition_completion = AI.completeIt(pre_condition_prompt)
-        task["pre_condition_raw_response"] = pre_condition_completion
+        # note that this gives one or more answers, in a list:
+        pre_completions = AI.completeIt(allowMultipleAnswers,pre_condition_prompt)
+        task["pre_condition_raw_responses"] = pre_completions
         preCondHeader = task["pre_condition_incomplete"]
-        pre_condition_completion = fix_completionString(preCondHeader,pre_condition_completion)
+        task["pre_condition_completions"] = [ fix_completionString(preCondHeader,rawAnswer) for rawAnswer in pre_completions ]
 
-    post_condition_prompt     = create_prompt(task, condition_type="post", prompt_type=prompt_type)
-    post_condition_completion = None
+    post_condition_prompt = create_prompt(task, condition_type="post", prompt_type=prompt_type)
     task["post_condition_prompt"] = post_condition_prompt
-    task["post_condition_raw_response"] = None
+    task["post_condition_raw_responses"] = None
+    task["post_condition_completions"] = None
     if post_condition_prompt != None:
-        post_condition_completion = AI.completeIt(post_condition_prompt)
-        task["post_condition_raw_response"] = post_condition_completion
+        # note that this gives one or more answers, in a list:
+        post_completions = AI.completeIt(allowMultipleAnswers,post_condition_prompt)
+        task["post_condition_raw_response"] = post_completions
         postCondHeader = task["post_condition_incomplete"]
-        post_condition_completion = fix_completionString(postCondHeader,post_condition_completion)
-    
-    task["pre_condition_completion"] = pre_condition_completion
-    task["post_condition_completion"] = post_condition_completion
-    
+        task["post_condition_completions"] = [ fix_completionString(postCondHeader,rawAnswer) for rawAnswer in post_completions ]
+
     return task
 
 class MyOpenAIClient(PromptResponder):
@@ -189,11 +195,12 @@ class MyOpenAIClient(PromptResponder):
         self.client = client
         self.model = modelId 
     
-    def completeIt(self, prompt:str) -> str:
+    def completeIt(self, multipleAnswer:int, prompt:str) -> list[str] :
         if self.DEBUG: print(">>> PROMPT:\n" + prompt)
         completion = self.client.chat.completions.create(
             #model = "gpt-3.5-turbo",
             model = self.model,
+            n = multipleAnswer,
             messages=[
                 {
                     "role": "user",
@@ -201,10 +208,12 @@ class MyOpenAIClient(PromptResponder):
                 }
                 ]
             )
-        reponse = completion.choices[0].message.content
-        if self.DEBUG: print(">>> raw response:\n" + reponse)
-        return reponse
-
+        N = min(multipleAnswer, len(completion.choices))
+        responses = [ completion.choices[k].message.content for k in range(N) ]
+        if self.DEBUG: 
+            for k in range(len(responses)):
+                print(f">>> raw response {k}:\n {responses[k]}")
+        return responses
 
 
 
@@ -219,14 +228,15 @@ if __name__ == '__main__':
 
     dataset = ZEROSHOT_DATA
     ROOT = os.path.dirname(os.path.abspath(__file__))
-    #dataset = os.path.join(ROOT, "..", "..", "llm4spiDatasets", "data", "x.json")
-    dataset = os.path.join(ROOT, "..", "..", "llm4spiDatasets", "data", "simple-specs.json")
+    dataset = os.path.join(ROOT, "..", "..", "llm4spiDatasets", "data", "x.json")
+    #dataset = os.path.join(ROOT, "..", "..", "llm4spiDatasets", "data", "simple-specs.json")
 
     generate_results(myAIclient,
                      dataset, 
                      specificProblem = None,
                      experimentName = "gpt3.5",     
                      enableEvaluation=True, 
+                     allowMultipleAnswers=10,
                      prompt_type="usePredDesc"
                      #prompt_type="cot2"
                      )

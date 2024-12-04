@@ -112,14 +112,14 @@ def evaluate_task_result(task: Dict, condition: str):
 
     # we first handle the case when the task pre- or post-condition
     # does not exists:
+    task[f"{condition}_condition_baseEvaluation"] = None
+    task[f"{condition}_condition_evaluation"] = None
+    task[f"{condition}_condition_baseEvaluations"] = None
+    task[f"{condition}_condition_evaluations"] = None
     if not (f"{condition}_condition" in task) : 
-        task[f"{condition}_condition_baseEvaluation"] = None
-        task[f"{condition}_condition_evaluation"] = None
         return
     conditionDesc = task[f"{condition}_condition"]
     if conditionDesc==None or conditionDesc=="":
-        task[f"{condition}_condition_baseEvaluation"] = None
-        task[f"{condition}_condition_evaluation"] = None
         return
 
     # The task pre-/post- exists, we proceed with its evaluation:
@@ -168,40 +168,57 @@ def evaluate_task_result(task: Dict, condition: str):
     print(f"Base: {solution_resultsBase}")
     print(f"Validation: {solution_resultsValidation}")
 
-    indented_function_body = textwrap.indent(task[f"{condition}_condition_completion"],'    ')
-    complete_function = task[f"{condition}_condition_incomplete"] + "\n" + indented_function_body
+    # get all the AI-completions, indent each one of them as well:
+    AI_completions = [ textwrap.indent(body,'    ') for body in task[f"{condition}_condition_completions"] ]
+    # now, evaliate each candidate-completion:
+    baseEvaluationz = []
+    fullEvaluationz = []
+
+    for k in range(len(AI_completions)):
+        indented_function_body = AI_completions[k]
+        complete_function = task[f"{condition}_condition_incomplete"] + "\n" + indented_function_body
+        dummy_function = task[f"{condition}_condition_incomplete"] + "\n   raise(\"dummy function invoked!\")"
+        
+        print(f"** running tests on candidate {k}")
     
-    # executing the def. of the AI's function; it may fail (e.g. if AI's code is not even syntax correct)
-    try:
-        exec(complete_function,globals())
-    except:
-        print(f">>>>>> The def of completion-proposal crashed!")
-        print(f">>>>>> src:\n {complete_function}")
-        task[f"{condition}_condition_baseEvaluation"] = 'NOT accepted'
-        task[f"{condition}_condition_evaluation"] = 'failed'
-        return
+        # executing the def. of the AI's function; it may fail (e.g. if AI's code is not even syntax correct)
+        try:
+            exec(dummy_function,globals())
+            exec(complete_function,globals())
+        except:
+            print(f">>>>>> The def of completion-proposal crashed!")
+            print(f">>>>>> src:\n {complete_function}")
+            baseEvaluationz.append('NOT accepted')
+            fullEvaluationz.append('failed')
+            continue
     
-    # running the test-cases on the AI's function; this may fail too:
-    if (condition == "pre"):
-        completion_resultsBase = [try_check_pre(test_case, task["task_id"]) for test_case in test_casesBase]
-        completion_resultsValidation = [try_check_pre(test_case, task["task_id"]) for test_case in test_casesValidation]
-    else:
-        completion_resultsBase = [try_check_post(test_case, task["task_id"]) for test_case in test_casesBase]
-        completion_resultsValidation = [try_check_post(test_case, task["task_id"]) for test_case in test_casesValidation]
+        # running the test-cases on the AI's function; this may fail too:
+        if (condition == "pre"):
+            completion_resultsBase = [try_check_pre(test_case, task["task_id"]) for test_case in test_casesBase]
+            completion_resultsValidation = [try_check_pre(test_case, task["task_id"]) for test_case in test_casesValidation]
+        else:
+            completion_resultsBase = [try_check_post(test_case, task["task_id"]) for test_case in test_casesBase]
+            completion_resultsValidation = [try_check_post(test_case, task["task_id"]) for test_case in test_casesValidation]
 
-    print(complete_function)
-    print(f"Base: {completion_resultsBase}")
-    print(f"Validation: {completion_resultsValidation}")
+        print(complete_function)
 
-    rawBaseEvalResult = compare_results(solution_resultsBase, completion_resultsBase)
-    task[f"{condition}_condition_baseEvaluation"] = 'accepted' if rawBaseEvalResult == 'accepted' else 'NOT accepted'
-    if test_casesValidation == []:   
-        task[f"{condition}_condition_evaluation"] = rawBaseEvalResult
-    else:
-        task[f"{condition}_condition_evaluation"] = compare_results(solution_resultsBase   + solution_resultsValidation, 
-                                                                    completion_resultsBase + completion_resultsValidation)
-
-
+        rawBaseEvalResult = compare_results(solution_resultsBase, completion_resultsBase)
+        verdictBaseTest = 'accepted' if rawBaseEvalResult == 'accepted' else 'NOT accepted'
+        if test_casesValidation == []:   
+          verdictFullTest = rawBaseEvalResult
+        else:
+          verdictFullTest = compare_results(solution_resultsBase   + solution_resultsValidation, 
+                                            completion_resultsBase + completion_resultsValidation)
+        baseEvaluationz.append(verdictBaseTest)
+        fullEvaluationz.append(verdictFullTest)
+        print(f"Base ({verdictBaseTest}): {completion_resultsBase}")
+        print(f"Validation ({verdictFullTest}): {completion_resultsValidation}")
+    
+    task[f"{condition}_condition_baseEvaluations"] = baseEvaluationz
+    task[f"{condition}_condition_evaluations"] = fullEvaluationz
+    task[f"{condition}_condition_baseEvaluation"] = 'accepted' if 'accepted' in baseEvaluationz else 'NOT accepted'
+    task[f"{condition}_condition_evaluation"] = 'accepted' if 'accepted' in fullEvaluationz else 'NOT accepted'
+    
 def print_acceptance_rate(tasks: Dict[str,Dict]):
     
     pre_condition_baseEvaluations = [ task["pre_condition_baseEvaluation"] for task in tasks.values()]
@@ -259,7 +276,7 @@ def write_evaluation_report(tasks: Dict[str,Dict], reportfile:str):
             if postcondEval != None:
                 f.write(f"{tId}-post (all tests): {postcondEval}\n")
 
-def evaluate_task_results(tasks: Dict[str,Dict], reportfile:str) -> None:
+def evaluate_tasks_results(tasks: Dict[str,Dict], reportfile:str) -> None:
     for task in tasks:
         task_dict = tasks[task]
         evaluate_task_result(task_dict, "pre")
