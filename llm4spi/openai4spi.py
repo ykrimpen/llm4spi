@@ -180,7 +180,7 @@ def generate_task_result(
     if post_condition_prompt != None:
         # note that this gives one or more answers, in a list:
         post_completions = AI.completeIt(allowMultipleAnswers,post_condition_prompt)
-        task["post_condition_raw_response"] = post_completions
+        task["post_condition_raw_responses"] = post_completions
         postCondHeader = task["post_condition_incomplete"]
         task["post_condition_completions"] = [ fix_completionString(postCondHeader,rawAnswer) for rawAnswer in post_completions ]
 
