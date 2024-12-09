@@ -91,8 +91,8 @@ def generate_results(
 
     time2 = time.time()
     if enableEvaluation:
-        reportfile = f"results/{experimentName}_evaluation_{prompt_type}_{current_date}.txt"
-        evaluate_tasks_results(tasks,reportfile)
+        reportfile_basename = f"results/{experimentName}_evaluation_{prompt_type}_{current_date}"
+        evaluate_tasks_results(tasks,reportfile_basename)
         results = [{
             "task_id": tasks[task]["task_id"],
             "pre_condition_prompt" : tasks[task]["pre_condition_prompt"],
@@ -119,7 +119,7 @@ def generate_results(
             } for task in tasks]
     timeSpentAnalysis = time.time() - time2
 
-    current_date = (datetime.now()).strftime("%d_%m_%Y_%H_%M_%S")
+    # Saving raw responses and evaluation results in a json-file:
     write_jsonl(f"results/{experimentName}_model_responses_{prompt_type}_{current_date}.jsonl", results)
 
     overallTime = time.time() - time0
@@ -237,7 +237,7 @@ if __name__ == '__main__':
                      experimentName = "gpt3.5",     
                      enableEvaluation=True, 
                      allowMultipleAnswers=10,
-                     prompt_type="usePredDesc"
+                     prompt_type="usePrgDesc"
                      #prompt_type="cot2"
                      )
     

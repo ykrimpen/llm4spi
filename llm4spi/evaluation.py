@@ -8,6 +8,7 @@ import textwrap
 import data
 from collections import Counter
 import myconfig
+import similarity
 
 def compare_results(expected: list, predicted: list) -> str:
     """
@@ -116,6 +117,7 @@ def evaluate_task_result(task: Dict, condition: str):
     task[f"{condition}_condition_evaluation"] = None
     task[f"{condition}_condition_baseEvaluations"] = None
     task[f"{condition}_condition_evaluations"] = None
+    task[f"{condition}_condition_editDistances"] = None
     if not (f"{condition}_condition" in task) : 
         return
     conditionDesc = task[f"{condition}_condition"]
@@ -173,11 +175,14 @@ def evaluate_task_result(task: Dict, condition: str):
     # now, evaliate each candidate-completion:
     baseEvaluationz = []
     fullEvaluationz = []
+    editDistansez = []
 
     for k in range(len(AI_completions)):
         indented_function_body = AI_completions[k]
         complete_function = task[f"{condition}_condition_incomplete"] + "\n" + indented_function_body
         dummy_function = task[f"{condition}_condition_incomplete"] + "\n   raise(\"dummy function invoked!\")"
+
+        editDistansez.append(similarity.levenshteinDistance(solution_function,complete_function))
         
         print(f"** running tests on candidate {k}")
     
@@ -216,8 +221,33 @@ def evaluate_task_result(task: Dict, condition: str):
     
     task[f"{condition}_condition_baseEvaluations"] = baseEvaluationz
     task[f"{condition}_condition_evaluations"] = fullEvaluationz
-    task[f"{condition}_condition_baseEvaluation"] = 'accepted' if 'accepted' in baseEvaluationz else 'NOT accepted'
-    task[f"{condition}_condition_evaluation"] = 'accepted' if 'accepted' in fullEvaluationz else 'NOT accepted'
+    task[f"{condition}_condition_editDistances"] = editDistansez
+
+    # calculating average edit-distance of completions which do not fail or rejected:
+    task[f"{condition}_condition_avrgRelativeEditDistance_ofUnrejected"] = None
+    task[f"{condition}_condition_avrgSize_ofUnrejected"] = None
+    editDistances2 = [  D for (v,D) in zip(baseEvaluationz,editDistansez) if v == 'accepted' or v=='too_weak' or v=='too_strong' ]
+    N = len(editDistances2)
+    if N>0:
+        N = 0.0 + N
+        task[f"{condition}_condition_avrgRelativeEditDistance_ofUnrejected"] = sum([ D['relativeDistance'] for D in editDistances2 ])/N
+        task[f"{condition}_condition_avrgSize_ofUnrejected"] = sum([ D['s2Len'] for D in editDistances2 ])/N
+
+    # We check if there is an AI-candidate solution that is accepted by the base-tests.
+    # The first one of such candidate is selected. We then also validate it against
+    # the whole test-suite (which include validation-tests), and report back the verdict
+    # of this validation. 
+    for (bVerdict,fVerdict,levDistance,k) in zip(baseEvaluationz,fullEvaluationz,editDistansez,range(len(baseEvaluationz))):
+        if bVerdict == 'accepted':
+            # the first candidate that is accepted by the base-tests
+            task[f"{condition}_condition_baseEvaluation"] = 'accepted'
+            task[f"{condition}_condition_evaluation"] = 'accepted' if fVerdict == 'accepted' else 'NOT accepted'
+            task[f"{condition}_condition_accepted_completion"] = k
+            task[f"{condition}_condition_accepted_completion_editDistance"] = levDistance
+            return
+    # all candidates fail the base-tests:
+    task[f"{condition}_condition_baseEvaluation"] = 'NOT accepted'
+    task[f"{condition}_condition_evaluation"] = 'NOT accepted'
     
 def print_acceptance_rate(tasks: Dict[str,Dict]):
     
@@ -261,29 +291,60 @@ def print_acceptance_rate(tasks: Dict[str,Dict]):
 def write_evaluation_report(tasks: Dict[str,Dict], reportfile:str):
     if reportfile == None: return
     with open(reportfile,'w') as f:
+        f.write("task-id,task,base-test,all-test,accepted-index,accepted-len,accepted-lev,accepted-relative-lev,nonrejecteds-avrg-len,nonrejecteds-avrg-rel-lev\n")
         for tId in tasks:
             task = tasks[tId]
             precondBaseEval = task["pre_condition_baseEvaluation"]
-            if precondBaseEval != None:
-                f.write(f"{tId}-pre (base tests): {precondBaseEval}\n")
             precondEval = task["pre_condition_evaluation"]
-            if precondEval != None:
-                f.write(f"{tId}-pre (all tests): {precondEval}\n")
+            if precondBaseEval != None:
+                if precondEval == 'accepted':
+                    proposalIndex = task["pre_condition_accepted_completion"]
+                    D = task["pre_condition_accepted_completion_editDistance"]
+                    solutionLength = D["s2Len"]
+                    editDistance = D["distance"]
+                    relativeEditDistance = D["relativeDistance"]
+                else:
+                    proposalIndex = ''
+                    solutionLength = ''
+                    editDistance = ''
+                    relativeEditDistance = ''
+                avrgLen_nonRejected = task["pre_condition_avrgSize_ofUnrejected"]
+                if avrgLen_nonRejected == None: avrgLen_nonRejected = ''
+                avrgRdist_nonRejected = task["pre_condition_avrgRelativeEditDistance_ofUnrejected"]
+                if avrgRdist_nonRejected == None: avrgRdist_nonRejected = ''
+                z = f"{tId},{tId}-pre,{precondBaseEval},{precondEval},{proposalIndex},{solutionLength},{editDistance},{relativeEditDistance}"
+                z = z + f",{avrgLen_nonRejected},{avrgRdist_nonRejected}\n"
+                f.write(z)
             postcondBaseEval =  task["post_condition_baseEvaluation"]
-            if postcondBaseEval != None:
-                f.write(f"{tId}-post (base tests): {postcondBaseEval}\n")
             postcondEval =  task["post_condition_evaluation"]
-            if postcondEval != None:
-                f.write(f"{tId}-post (all tests): {postcondEval}\n")
+            if postcondBaseEval != None:
+                if postcondEval == 'accepted':
+                    proposalIndex = task["post_condition_accepted_completion"]
+                    D = task["post_condition_accepted_completion_editDistance"]
+                    solutionLength = D["s2Len"]
+                    editDistance = D["distance"]
+                    relativeEditDistance = D["relativeDistance"]
+                else:
+                    proposalIndex = ''
+                    solutionLength = ''
+                    editDistance = ''
+                    relativeEditDistance = ''
+                avrgLen_nonRejected = task["post_condition_avrgSize_ofUnrejected"]
+                if avrgLen_nonRejected == None: avrgLen_nonRejected = ''
+                avrgRdist_nonRejected = task["post_condition_avrgRelativeEditDistance_ofUnrejected"]
+                if avrgRdist_nonRejected == None: avrgRdist_nonRejected = ''
+                z = f"{tId},{tId}-post,{postcondBaseEval},{postcondEval},{proposalIndex},{solutionLength},{editDistance},{relativeEditDistance}"
+                z = z + f",{avrgLen_nonRejected},{avrgRdist_nonRejected}\n"
+                f.write(z)
 
-def evaluate_tasks_results(tasks: Dict[str,Dict], reportfile:str) -> None:
+def evaluate_tasks_results(tasks: Dict[str,Dict], reportfile_basename:str) -> None:
     for task in tasks:
         task_dict = tasks[task]
         evaluate_task_result(task_dict, "pre")
         evaluate_task_result(task_dict, "post")
 
-    if reportfile != None:
-        write_evaluation_report(tasks,reportfile)
+    if reportfile_basename != None:
+        write_evaluation_report(tasks,reportfile_basename + ".csv")
 
     print_acceptance_rate(tasks)
 

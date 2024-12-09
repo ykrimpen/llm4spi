@@ -26,7 +26,9 @@ def getNumOfTestCases(task:dict, type:str) -> dict :
         base2 = len(test_suites[1])
         validation = len(test_suites[2])
     all = base1 + base2 + validation
-    return { "base1":base1, "base2":base2, "validation":validation, "all":all}
+    R = { "base1":base1, "base2":base2, "validation":validation, "all":all}
+    print(f">>> {task["task_id"]}: {R}")
+    return R
 
 def printStats(datafile:str):
   tasks = read_problems(datafile)
@@ -64,7 +66,7 @@ def printStats(datafile:str):
 if __name__ == '__main__':
    ROOT = os.path.dirname(os.path.abspath(__file__))
    dataset = os.path.join(ROOT, "..", "..", "llm4spiDatasets", "data", "x.json")
-   dataset = os.path.join(ROOT, "..", "..", "llm4spiDatasets", "data", "simple-specs.json")
+   #dataset = os.path.join(ROOT, "..", "..", "llm4spiDatasets", "data", "simple-specs.json")
    printStats(dataset)
   
   
