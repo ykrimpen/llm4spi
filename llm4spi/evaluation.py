@@ -103,7 +103,7 @@ def evaluate_task_result(task: Dict, condition: str):
 
     The condition argument is either 'pre' or 'post'.
 
-    After the defs are constructred, the function evaluates the predicted 
+    After the defs are constructed, the function evaluates the predicted 
     function's performance.
 
     The evaluation results are added/updated as entries in the given
