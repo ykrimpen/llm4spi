@@ -2,3 +2,4 @@
 llm4spi/results/*
 llm4spi/__pycache__/*
 results/*
+myenv2/*
