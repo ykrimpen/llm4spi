@@ -211,8 +211,8 @@ class MyOpenAIClient(PromptResponder):
 if __name__ == '__main__':
     openai_api_key = os.environ.get('OPENAI_API_KEY') 
     openAIclient = OpenAI(api_key=openai_api_key)
-    modelId = "gpt-3.5-turbo"
-    #modelId ="gpt-4-turbo"
+    # modelId = "gpt-3.5-turbo"
+    modelId ="o1-mini"
     #modelId ="o1-mini" 
     myAIclient = MyOpenAIClient(openAIclient,modelId)
     myAIclient.DEBUG = True
@@ -224,8 +224,8 @@ if __name__ == '__main__':
 
     generate_results(myAIclient,
                      dataset, 
-                     specificProblem = "arith_10",
-                     experimentName = "gpt3.5",     
+                     specificProblem = None,
+                     experimentName = "o1-mini",     
                      enableEvaluation=True, 
                      prompt_type="usePredDesc"
                      #prompt_type="cot2"
