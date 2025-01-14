@@ -5,7 +5,6 @@ from azure.core.credentials import AzureKeyCredential
 
 from datetime import datetime
 from typing import Dict, List
-import os
 import time
 
 from data import ZEROSHOT_DATA, read_problems, write_jsonl
