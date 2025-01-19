@@ -91,10 +91,6 @@ def generate_results(
         evaluate_task_results(tasks,reportfile)
         results = [{
             "task_id": tasks[task]["task_id"],
-            "pre_condition_prompt" : tasks[task]["pre_condition_prompt"],
-            "pre_condition_raw_response": tasks[task]["pre_condition_raw_response"],
-            "pre_condition_completion": tasks[task]["pre_condition_completion"],
-            "pre_condition_evaluation": tasks[task]["pre_condition_evaluation"],
             "post_condition_prompt" : tasks[task]["post_condition_prompt"],
             "post_condition_raw_response": tasks[task]["post_condition_raw_response"],
             "post_condition_completion": tasks[task]["post_condition_completion"],
@@ -104,9 +100,6 @@ def generate_results(
     else:
         results = [{
             "task_id": tasks[task]["task_id"],
-            "pre_condition_prompt" : tasks[task]["pre_condition_prompt"],
-            "pre_condition_raw_response": tasks[task]["pre_condition_raw_response"],
-            "pre_condition_completion": tasks[task]["pre_condition_completion"],
             "post_condition_prompt" : tasks[task]["post_condition_prompt"],
             "post_condition_raw_response": tasks[task]["post_condition_raw_response"],
             "post_condition_completion": tasks[task]["post_condition_completion"]
@@ -146,7 +139,7 @@ def generate_task_result(
         prompt_type: str) -> Dict:
     """
     This function takes the desciption of a task/problem, represented as a dictionary.
-    It then creates the completion prompt for the pre- and post-condition for the task. 
+    It then creates the completion prompt for the post-condition for the task. 
     The prompt is sent to an AI model and the answer (the completion)
     is collected. The answer is added into the task-dictionary.
 
@@ -155,16 +148,6 @@ def generate_task_result(
 
     The creation of the prompt is coded in the module Prompting. 
     """
-    pre_condition_prompt     = create_prompt(task, condition_type="pre", prompt_type=prompt_type)
-    pre_condition_completion = None
-    task["pre_condition_prompt"] = pre_condition_prompt
-    task["pre_condition_raw_response"] = None
-    if pre_condition_prompt != None:
-        pre_condition_completion = AI.completeIt(pre_condition_prompt)
-        task["pre_condition_raw_response"] = pre_condition_completion
-        preCondHeader = task["pre_condition_incomplete"]
-        pre_condition_completion = fix_completionString(preCondHeader,pre_condition_completion)
-
     post_condition_prompt     = create_prompt(task, condition_type="post", prompt_type=prompt_type)
     post_condition_completion = None
     task["post_condition_prompt"] = post_condition_prompt
@@ -175,7 +158,6 @@ def generate_task_result(
         postCondHeader = task["post_condition_incomplete"]
         post_condition_completion = fix_completionString(postCondHeader,post_condition_completion)
     
-    task["pre_condition_completion"] = pre_condition_completion
     task["post_condition_completion"] = post_condition_completion
     
     return task
@@ -222,14 +204,16 @@ if __name__ == '__main__':
     #dataset = os.path.join(ROOT, "..", "..", "llm4spiDatasets", "data", "x.json")
     dataset = os.path.join(ROOT, "..", "..", "llm4spiDatasets", "data", "simple-specs.json")
 
-    generate_results(myAIclient,
-                     dataset, 
-                     specificProblem = None,
-                     experimentName = "gpt-4o",     
-                     enableEvaluation=True, 
-                     prompt_type="usePredDesc"
-                     #prompt_type="cot2"
-                     )
-    
- 
-    
+    modelIds = ["o1-preview"]
+    prompt_types = ["usePrgDesc", "usePrgDesc_0", "cot1", "cot1_0", "usePredDesc", "usePredDesc_0", "xcot1", "xcot1_0"]
+    for modelId in modelIds:
+        myAIclient.model = modelId
+        for prompt_type in prompt_types:
+            experiment_name = f"{modelId}-{prompt_type}"
+            generate_results(myAIclient,
+                             dataset, 
+                             specificProblem = None,
+                             experimentName = experiment_name,     
+                             enableEvaluation=True, 
+                             prompt_type=prompt_type
+                             )

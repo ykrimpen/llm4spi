@@ -1,6 +1,5 @@
 from typing import Dict
 
-
 def create_prompt(task: Dict, condition_type: str, prompt_type: str) -> str:
     
     # check first if the condition-type (pre/post) exists in the task:
@@ -10,13 +9,16 @@ def create_prompt(task: Dict, condition_type: str, prompt_type: str) -> str:
     
     condition_incomplete = task[condition_type + "_condition_incomplete"]
 
-    # get the prgram desc and program name , if given:
+    # get the program desc and program name, if given:
     if 'program' in task:
         programSrc = task['program']
         z = programSrc.split('(')[0].strip()
         # remove "def"
         programName = z.split()[1].strip()
         programDesc = task['program-desc']
+    else:
+        programName = "unknown"
+        programDesc = "unknown"
 
     # get the name of the param representing retval
     if condition_type == 'post':
@@ -27,44 +29,49 @@ def create_prompt(task: Dict, condition_type: str, prompt_type: str) -> str:
             retvalParamName = zz.split(')')[0].strip()
         else:
             retvalParamName = zz.strip()
-        
-    if prompt_type == 'usePrgDesc' :
-        if not('program' in task) : return None 
-        if condition_type == 'post':
-            prompt = f"Consider a program {programName}. {programDesc}\n\nINSTRUCTION:\n(1) Extract the post-condition of {programName} (in English). \n(2) Then, code this post-condtion as a Python function with the header shown below, where the parameter {retvalParamName} represents {programName}'s return value.\nDo not explain. If a helper function is needed, define it as an inner function. Import packages, if needed, locally within the function.\n\n{condition_incomplete}"
-        else:
-            prompt = f"Consider a program {programName}. {programDesc}\n\nINSTRUCTION:\n(1) Extract the pre-condition of {programName} (in English). \n(2) Then, code this pre-condtion as a Python function with the header shown below.\n Do not explain. If a helper function is needed, define it as an inner function. Import packages, if needed, locally within the function.\n\n{condition_incomplete}"
+    
+    # get the function name for usePredDesc, xcot1, and xcot2 prompts
+    poscFunctionName = task.get('poscFunctionName', 'unknown_function')
 
-    elif prompt_type == 'cot1' :
-        if not('program' in task) : return None 
-        if condition_type == 'post':
-            prompt = f"Consider a program {programName}. {programDesc}\n\nINSTRUCTION:\n(1) Extract the post-condition of {programName} (in English).\n(2) reformulate the post-condition as clauses, where each clause is of the form \"if condition1 then condition2\".\n(3) Finally, translate these clauses to a Python function with the header shown below, where the parameter {retvalParamName} represents {programName}'s return value.\n\n{condition_incomplete}"
-        else:
-            prompt = f"Consider a program {programName}. {programDesc}\n\nnINSTRUCTION:\n(1) Extract the pre-condition of {programName} (in English).\n(2) reformulate the pre-condition as clauses, where each clause is of the form \"if condition1 then condition2\".\n(3) Finally, translate these clauses to a Python function with the header shown below.\n\n{condition_incomplete}"
+    base_prompts = {
+        'usePrgDesc': "Consider a program {programName}. {programDesc}\n\nINSTRUCTION:\n(1) Extract the {condition_type}-condition of {programName} (in English). \n(2) Then, code this {condition_type}-condition as a Python function with the header shown below, where the parameter {retvalParamName} represents {programName}'s return value.\nDo not explain. If a helper function is needed, define it as an inner function. Import packages, if needed, locally within the function.\n\n{condition_incomplete}",
+        'cot1': "Consider a program {programName}. {programDesc}\n\nINSTRUCTION:\n(1) Extract the {condition_type}-condition of {programName} (in English).\n(2) reformulate the {condition_type}-condition as clauses, where each clause is of the form \"if condition1 then condition2\".\n(3) Finally, translate these clauses to a Python function with the header shown below, where the parameter {retvalParamName} represents {programName}'s return value.\n\n{condition_incomplete}",
+        'cot2': "Consider a program {programName}. {programDesc}\n\nINSTRUCTION:\n(1) Extract the {condition_type}-condition of {programName} (in English).\n(2) reformulate the {condition_type}-condition as clauses, where each clause is of the form \"if condition1 then condition2\".\n(3) Then, reformulate each clause as implicative Horn clauses of the form \"c1 and c2 ... implies ck\".\n(4) Finally, code these Horn clauses as a Python function with the header shown below, where the parameter {retvalParamName} represents {programName}'s return value.\n\n{condition_incomplete}",
+        'usePredDesc': "Consider a Python function {poscFunctionName} with header:\n\n{condition_incomplete}\n\nThe function checks if the following condition holds. {condition}\n\nINSTRUCTION: please complete the code. Only give the code. Do not explain. If a helper function is needed, define it as an inner function. Import packages, if needed, locally within the function.",
+        'xcot1': "Consider a Python function {poscFunctionName} with the header:\n\n{condition_incomplete}\n\nThe function checks if the following condition is true. {condition}\n\nINSTRUCTION:\n(1) reformulate the mentioned condition as clauses, where each clause is of the form \"if condition1 then condition2\".\n(2) translate the clauses to Python code to complete the code of {poscFunctionName}.",
+        'xcot2': "Consider a Python function {poscFunctionName} with the header:\n\n{condition_incomplete}.\n\nThe function checks if the following condition is true. {condition}\n\nINSTRUCTION:\n(1) reformulate the mentioned condition as clauses, where each clause is of the form \"if condition1 then condition2\".\n(2) Then, reformulate each clause as implicative Horn clauses of the form \"c1 and c2 ... implies ck\".\n(3) Finally, translate the Horn clauses to Python code to complete the code of {poscFunctionName}."
+    }
 
-    elif prompt_type == 'cot2' :
-        if not('program' in task) : return None 
-        if condition_type == 'post' :
-            prompt = f"Consider a program {programName}. {programDesc}\n\nINSTRUCTION:\n(1) Extract the post-condition of {programName} (in English).\n(2) reformulate the post-condition as clauses, where each clause is of the form \"if condition1 then condition2\".\n(3) Then, reformulate each clause as implicative Horn clauses of the form \"c1 and c2 ... implies ck\".\n(4) Finally, code these Horn clauses as a Python function with the header shown below, where the parameter {retvalParamName} represents {programName}'s return value.\n\n{condition_incomplete}"
-        else:
-            prompt = f"Consider a program {programName}. {programDesc}\n\nINSTRUCTION:\n(1) Extract the pre-condition of {programName} (in English).\n(2) reformulate the pre-condition as clauses, where each clause is of the form \"if condition1 then condition2\".\n(3) Then, reformulate each clause as implicative Horn clauses of the form \"c1 and c2 ... implies ck\".\n(4) Finally, code these Horn clauses as a Python function with the header shown below.\n\n{condition_incomplete}"
+    mbti_descriptions = [
+        "Please generate a function as a programmer with the following MBTI description: INTJ.",
+        "Please generate a function as a programmer with the following MBTI description: INTP."
+    ]
 
-    elif prompt_type == "usePredDesc":
-        z = condition_incomplete.split('(')[0].strip()
-         # remove "def"
-        poscFunctionName = z.split()[1].strip()
-        prompt = f"Consider a Python function {poscFunctionName} with header:\n\n{condition_incomplete}\n\nThe function checks if the following condition holds. {condition}\n\nINSTRUCTION: please complete the code. Only give the code. Do not explain. If a helper function is needed, define it as an inner function. Import packages, if needed, locally within the function."        
+    if prompt_type in base_prompts:
+        prompt = base_prompts[prompt_type].format(
+            programName=programName,
+            programDesc=programDesc,
+            condition_type=condition_type,
+            retvalParamName=retvalParamName,
+            condition_incomplete=condition_incomplete,
+            condition=condition,
+            poscFunctionName=poscFunctionName
+        )
+    else:
+        base_prompt_type = prompt_type.split('_')[0]
+        mbti_description = mbti_descriptions[int(prompt_type.split('_')[1])]
+        prompt = f"{mbti_description}\n\n" + base_prompts[base_prompt_type].format(
+            programName=programName,
+            programDesc=programDesc,
+            condition_type=condition_type,
+            retvalParamName=retvalParamName,
+            condition_incomplete=condition_incomplete,
+            condition=condition,
+            poscFunctionName=poscFunctionName
+        )
+    return prompt
 
-    elif prompt_type == "xcot1":
-        z = condition_incomplete.split('(')[0].strip()
-         # remove "def"
-        poscFunctionName = z.split()[1].strip()
-        prompt = f"Consider a Python function {poscFunctionName} with the header:\n\n{condition_incomplete}\n\nThe function checks if the following condition is true. {condition}\n\nINSTRUCTION:\n(1) reformulate the mentioned condition as clauses, where each clause is of the form \"if condition1 then condition2\".\n(2) translate the clauses to Python code to complete the code of {poscFunctionName}."        
-
-    elif prompt_type == "xcot2":
-        z = condition_incomplete.split('(')[0].strip()
-         # remove "def"
-        poscFunctionName = z.split()[1].strip()
-        prompt = f"Consider a Python function {poscFunctionName} with the header:\n\n{condition_incomplete}.\n\nThe function checks if the following condition is true. {condition}\n\nnINSTRUCTION:\n(1) reformulate the mentioned condition as clauses, where each clause is of the form \"if condition1 then condition2\".\n(2) Then, reformulate each clause as implicative Horn clauses of the form \"c1 and c2 ... implies ck\".\n(3) Finally, translate the Horn clauses to Python code to complete the code of {poscFunctionName}."        
-
-    return prompt  
+# Example usage:
+# prompt = create_prompt(task, 'post', 'usePrgDesc')
+# prompt = create_prompt(task, 'post', 'usePrgDesc_0')  # INTJ
+# prompt = create_prompt(task, 'post', 'usePrgDesc_1')  # INTP
